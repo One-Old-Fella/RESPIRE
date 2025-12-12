@@ -1,0 +1,23 @@
+{
+  "name": "respire-app",
+  "version": "1.0.0",
+  "description": "RESPIRE: System Regulation PWA",
+  "main": "main.js",
+  "scripts": {
+    "start": "npx http-server . -p 8080",
+    "electron:start": "electron ."
+  },
+  "keywords": [
+    "breathing",
+    "pwa",
+    "health",
+    "focus"
+  ],
+  "author": "System Admin",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "electron": "^26.0.0"
+  }
+}

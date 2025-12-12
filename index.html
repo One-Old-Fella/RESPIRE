@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESPIRE: System Regulation</title>
+
+    <link rel="manifest" href="manifest.json">
+    
+    <style>
+        :root {
+            --bg-color: #102a43;
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --text-main: #f0f4f8;
+            --text-sub: #bcccdc;
+            --accent: #48cfad;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-main);
+            transition: background-color 1s ease;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        .container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            box-sizing: border-box;
+            margin-bottom: 50px;
+        }
+
+        /* --- Header --- */
+        .app-header {
+            margin-bottom: 15px;
+            text-align: center;
+            opacity: 0.9;
+        }
+        .app-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin: 0;
+        }
+        .app-subtitle {
+            font-size: 0.75rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+
+        /* --- Visual Toggle Switch --- */
+        .visual-toggle-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+
+        .visual-toggle-container {
+            display: flex;
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 4px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .visual-option {
+            padding: 8px 20px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            transition: all 0.3s ease;
+        }
+
+        .visual-option.active {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* --- Shape Sub-Toggle --- */
+        .shape-toggle-container {
+            display: flex;
+            gap: 10px;
+            height: 30px;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .shape-toggle-container.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .shape-btn {
+            background: transparent;
+            border: 1px solid var(--text-sub);
+            color: var(--text-sub);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .shape-btn:hover { background: rgba(255,255,255,0.1); color: white; border-color: white;}
+        
+        .shape-btn.active {
+            background: var(--accent);
+            color: #102a43;
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* --- Canvas Area --- */
+        .canvas-wrapper {
+            position: relative;
+            margin-bottom: 10px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        canvas {
+            background-color: #1e3a5f;
+            border-radius: 20px;
+            display: block;
+            transition: background-color 1s ease;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- Status Text --- */
+        .status-container {
+            height: 3rem;
+            margin-bottom: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status-text {
+            font-size: 1.8rem;
+            font-weight: 400;
+            text-align: center;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        /* --- Controls --- */
+        .controls {
+            width: 100%;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 10;
+        }
+
+        /* --- Audio Settings --- */
+        .audio-settings {
+            display: none;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: -5px;
+            border: 1px solid rgba(255,255,255,0.05);
+            animation: slideDown 0.3s ease;
+        }
+        
+        .audio-settings.visible { display: flex; flex-direction: column; gap: 12px; }
+
+        .audio-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+
+        select.tone-select {
+            background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
+            padding: 5px 10px; border-radius: 5px; font-family: inherit; outline: none; cursor: pointer; flex-grow: 1;
+        }
+        select.tone-select option { background: #102a43; }
+        
+        .tone-desc { font-size: 0.8rem; color: var(--accent); font-style: italic; margin-top: -5px; line-height: 1.3; }
+
+        /* --- Mode Buttons --- */
+        .mode-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        
+        button.mode-btn {
+            padding: 12px 5px; border: none; border-radius: 10px; font-weight: 600; font-size: 0.8rem;
+            cursor: pointer; transition: all 0.2s ease; background: rgba(255,255,255,0.05);
+            color: var(--text-sub); border: 1px solid transparent;
+        }
+        button.mode-btn:hover { background: rgba(255,255,255,0.15); color: white; }
+        button.mode-btn.active { background: #fff; color: #102a43; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transform: translateY(-1px); }
+        
+        button.mode-btn[data-mode="balance"].active { color: #334e68; }
+        button.mode-btn[data-mode="cold"].active { color: #d32f2f; }
+        button.mode-btn[data-mode="heat"].active { color: #00838f; }
+        button.mode-btn[data-mode="relief"].active { color: #7b1fa2; }
+        button.mode-btn[data-mode="energy"].active { color: #f57f17; }
+        button.mode-btn[data-mode="optimal"].active { color: #2e7d32; }
+
+        /* --- Sliders --- */
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.8rem; color: var(--text-sub); }
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 5px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #ffffff; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+        /* --- Utility Bar --- */
+        .utility-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+        .sensory-toggles { display: flex; gap: 10px; }
+
+        button.icon-btn {
+            background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: var(--text-sub);
+            padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;
+            transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        button.icon-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        button.icon-btn.active { background: var(--accent); color: #102a43; border-color: var(--accent); font-weight: 700; }
+
+        button.info-toggle {
+            background: transparent; color: var(--text-sub); border: 1px solid var(--text-sub);
+            border-radius: 20px; padding: 5px 15px; font-weight: bold; cursor: pointer;
+            transition: all 0.2s; font-size: 0.85rem;
+        }
+        button.info-toggle:hover { background: rgba(255,255,255,0.1); color: white; border-color: white;}
+        button.info-toggle.active { background: #fff; color: #102a43; border-color: #fff; }
+
+        .quick-info { text-align: center; font-size: 0.9rem; color: var(--text-sub); margin-bottom: 5px; min-height: 1.2rem; }
+
+        /* --- Deep Dive (Mode Info) --- */
+        .deep-dive {
+            width: 100%; max-width: 500px; background: rgba(0,0,0,0.25); border-radius: 15px;
+            margin-top: 15px; overflow: hidden; max-height: 0;
+            transition: max-height 0.4s ease-in-out, opacity 0.4s ease; opacity: 0;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .deep-dive.open { max-height: 1200px; opacity: 1; margin-bottom: 20px; }
+        .deep-dive-content { padding: 20px; color: #d9e2ec; font-size: 0.95rem; line-height: 1.6; }
+        .dd-main-title { font-size: 1.2rem; font-weight: 700; color: #fff; margin: 0 0 15px 0; display: block; border-bottom: 2px solid var(--accent); padding-bottom: 5px; }
+        .deep-dive-content h3 { font-weight: 700; color: var(--accent); margin: 15px 0 5px 0; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+        .deep-dive-content p { margin: 0 0 10px 0; }
+        .dd-highlight { background: rgba(72, 207, 173, 0.1); border-left: 3px solid var(--accent); padding: 5px 10px; margin: 10px 0; font-style: italic; }
+
+        /* --- Guide Modal (Knowledge Base) --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(16, 42, 67, 0.95); z-index: 1000;
+            display: flex; justify-content: center; align-items: flex-start;
+            overflow-y: auto; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease; padding: 20px; box-sizing: border-box;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        
+        .modal-content {
+            background: #1e3a5f; width: 100%; max-width: 600px;
+            border-radius: 15px; padding: 25px; margin-top: 40px; margin-bottom: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5); position: relative;
+            color: #f0f4f8;
+        }
+        
+        .modal-close {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(255,255,255,0.1); border: none; color: white;
+            width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold;
+        }
+        .modal-close:hover { background: rgba(255,255,255,0.2); }
+
+        .guide-section { margin-bottom: 30px; }
+        .guide-title { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
+        .guide-h2 { font-size: 1.2rem; color: #48cfad; margin-bottom: 15px; font-weight: 600; }
+        .guide-h3 { font-size: 1rem; color: #829ab1; margin-bottom: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .guide-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 20px; }
+        .guide-table th { text-align: left; padding: 8px; border-bottom: 2px solid #48cfad; color: #48cfad; }
+        .guide-table td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #d9e2ec; vertical-align: top; }
+        .guide-table tr:last-child td { border-bottom: none; }
+        
+        .guide-list li { margin-bottom: 10px; line-height: 1.5; color: #d9e2ec; }
+        .guide-list strong { color: white; }
+
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Header -->
+        <div class="app-header">
+            <h1 class="app-title">RESPIRE</h1>
+            <div class="app-subtitle">System Regulation</div>
+        </div>
+
+        <!-- Visual Toggle -->
+        <div class="visual-toggle-wrapper">
+            <div class="visual-toggle-container">
+                <div class="visual-option active" id="vizBox" onclick="updateSetting('visual', 'box')">Geometry</div>
+                <div class="visual-option" id="vizElemental" onclick="updateSetting('visual', 'elemental')">Elemental</div>
+            </div>
+            
+            <!-- Geometry Sub-Toggle -->
+            <div id="shapeToggle" class="shape-toggle-container visible">
+                <button class="shape-btn active" id="shapeSquare" onclick="updateSetting('shape', 'square')" title="Square">■</button>
+                <button class="shape-btn" id="shapeCircle" onclick="updateSetting('shape', 'circle')" title="Circle">●</button>
+            </div>
+        </div>
+
+        <div class="status-container">
+            <div class="status-text" id="statusText">Inhale (Nose)</div>
+        </div>
+        
+        <div class="canvas-wrapper">
+            <canvas id="breathingCanvas"></canvas>
+        </div>
+
+        <div class="controls">
+            <div class="quick-info" id="quickInfo">Equal breathing to regulate stress.</div>
+
+            <div class="mode-buttons">
+                <button class="mode-btn active" onclick="setMode('optimal')" data-mode="optimal">🌱 Optimal</button>
+                <button class="mode-btn" onclick="setMode('balance')" data-mode="balance">Balance</button>
+                <button class="mode-btn" onclick="setMode('relief')" data-mode="relief">💜 Relief</button>
+                <button class="mode-btn" onclick="setMode('cold')" data-mode="cold">🔥 Warming</button>
+                <button class="mode-btn" onclick="setMode('heat')" data-mode="heat">❄️ Cooling</button>
+                <button class="mode-btn" onclick="setMode('energy')" data-mode="energy">⚡ Energy</button>
+            </div>
+
+            <div id="audioSettings" class="audio-settings">
+                <div class="audio-row">
+                    <label style="margin:0; width: 60px;">Volume</label>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="70" oninput="updateMasterVolume(this.value)">
+                </div>
+                <div class="audio-row">
+                    <label style="margin:0; width: 60px;">Tone</label>
+                    <select id="toneSelector" class="tone-select" onchange="updateSetting('tone', this.value)">
+                        <option value="zen">Zen (Sine)</option>
+                        <option value="deep">Deep (Sub Sine)</option>
+                        <option value="warm">Warm (Triangle)</option>
+                        <option value="ethereal">Ethereal (Chord)</option>
+                    </select>
+                </div>
+                <div class="tone-desc" id="toneDesc">Pure and simple. Standard focused tone.</div>
+            </div>
+
+            <div class="utility-bar">
+                <div class="sensory-toggles">
+                    <button id="soundBtn" class="icon-btn" onclick="toggleSound()">
+                        <span>🔊</span>
+                    </button>
+                    <button id="vibeBtn" class="icon-btn" onclick="toggleVibration()">
+                        <span>📳</span>
+                    </button>
+                    <button class="icon-btn" onclick="toggleGuide()">
+                        <span>📖</span> Guide
+                    </button>
+                </div>
+                <button class="info-toggle" id="infoToggleBtn" onclick="toggleDetails()">
+                    Tech Specs ▼
+                </button>
+            </div>
+        </div>
+
+        <div class="deep-dive" id="deepDive">
+            <div class="deep-dive-content" id="deepDiveContent"></div>
+        </div>
+
+    </div>
+
+    <!-- Knowledge Base Modal -->
+    <div id="guideModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="toggleGuide()">✕</button>
+            
+            <div class="guide-title">The System Manual</div>
+            
+            <div class="guide-section">
+                <div class="guide-h2">1. Technique Cheatsheet</div>
+                <p style="color:#bcccdc; margin-bottom:15px; font-size:0.9rem;">Think of your breath as a remote control for your nervous system. Choose the right mode for your current state.</p>
+                <table class="guide-table">
+                    <thead>
+                        <tr>
+                            <th width="25%">Mode</th>
+                            <th width="45%">Goal</th>
+                            <th>Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Optimal</strong></td>
+                            <td>Synchronize</td>
+                            <td>Daily Baseline, Health</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Balance</strong></td>
+                            <td>Regulate</td>
+                            <td>Stress, Focus, Transitions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Relief</strong></td>
+                            <td>Reset</td>
+                            <td>Panic, Overwhelm</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Warming</strong></td>
+                            <td>Heat</td>
+                            <td>Cold Environments</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cooling</strong></td>
+                            <td>Cool</td>
+                            <td>Overheating, Anger</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Energy</strong></td>
+                            <td>Excitation</td>
+                            <td>Waking Up (Short burst)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="guide-section">
+                <div class="guide-h2">2. Why Nose Breathing?</div>
+                <div class="guide-h3">The Nitric Oxide Advantage</div>
+                <p style="color:#d9e2ec; line-height:1.6;">
+                    For a human "system" to operate within warranty, nose breathing is the standard operating procedure. Your sinuses produce a molecule called <strong>Nitric Oxide (NO)</strong>. This molecule is a vasodilator—it widens blood vessels, lowers blood pressure, and increases oxygen uptake in the lungs by 10-18%. Mouth breathing bypasses this production entirely.
+                </p>
+            </div>
+
+            <div class="guide-section">
+                <div class="guide-h2">3. Risks of Mouth Breathing</div>
+                <p style="color:#bcccdc; margin-bottom:15px; font-size:0.9rem;">Chronic mouth breathing is like running an engine without an air filter.</p>
+                <ul class="guide-list">
+                    <li><strong>Structural Deformation:</strong> The "Long Face." In children, it leads to narrowed jaws and crowded teeth. In adults, it causes forward head posture.</li>
+                    <li><strong>Anxiety Loop:</strong> Mouth breathing dumps CO2 too quickly. Low CO2 levels trigger the fear center (amygdala), keeping you in a low-level state of "Fight or Flight."</li>
+                    <li><strong>Brain Fog:</strong> Due to the Bohr Effect (which requires CO2 to release Oxygen), mouth breathers often have poorer oxygen delivery to the brain.</li>
+                    <li><strong>Sleep Issues:</strong> The primary cause of snoring and sleep apnea is the collapse of soft tissue, which is exacerbated by an open mouth during sleep.</li>
+                </ul>
+            </div>
+            
+            <div style="text-align:center; margin-top:30px; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;">
+                <button class="mode-btn active" style="padding:10px 30px;" onclick="toggleGuide()">Close Manual</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Elements ---
+        const canvas = document.getElementById('breathingCanvas');
+        const ctx = canvas.getContext('2d');
+        const statusText = document.getElementById('statusText');
+        const quickInfo = document.getElementById('quickInfo');
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        const deepDive = document.getElementById('deepDive');
+        const deepDiveContent = document.getElementById('deepDiveContent');
+        const infoToggleBtn = document.getElementById('infoToggleBtn');
+        const soundBtn = document.getElementById('soundBtn');
+        const vibeBtn = document.getElementById('vibeBtn');
+        const vizBox = document.getElementById('vizBox');
+        const vizElemental = document.getElementById('vizElemental');
+        const shapeToggle = document.getElementById('shapeToggle');
+        const shapeSquareBtn = document.getElementById('shapeSquare');
+        const shapeCircleBtn = document.getElementById('shapeCircle');
+        const audioSettings = document.getElementById('audioSettings');
+        const toneSelector = document.getElementById('toneSelector');
+        const toneDesc = document.getElementById('toneDesc');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const guideModal = document.getElementById('guideModal');
+
+        // --- Configuration & Persistence ---
+        
+        const DEFAULT_SETTINGS = {
+            global: { volume: 0.7 },
+            modes: {
+                optimal: { visual: 'elemental', shape: 'circle', tone: 'zen' },
+                balance: { visual: 'box', shape: 'square', tone: 'deep' },
+                cold: { visual: 'elemental', shape: 'circle', tone: 'warm' },
+                heat: { visual: 'elemental', shape: 'circle', tone: 'zen' },
+                relief: { visual: 'elemental', shape: 'circle', tone: 'deep' },
+                energy: { visual: 'elemental', shape: 'circle', tone: 'warm' }
+            }
+        };
+
+        let appSettings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+        let currentMode = 'optimal';
+        let soundEnabled = false;
+        let vibrationEnabled = false;
+        
+        let audioCtx = null;
+        let oscillators = []; 
+        let gainNode = null;
+        let filterNode = null;
+
+        const TONE_DESCRIPTIONS = {
+            zen: "Pure and simple. Standard focused tone.",
+            deep: "Low frequency. Grounding, but requires speakers/headphones.",
+            warm: "Rich harmonics. Soft edges, pleasant for longer sessions.",
+            ethereal: "Harmonic chord. Meditative and spacious."
+        };
+
+        // --- Data ---
+        const MODES = {
+            optimal: {
+                colors: { start: [76, 175, 80], end: [200, 230, 201] },
+                bg: "#1b3a24",
+                quick: "Resonance breathing for daily health.",
+                phases: [
+                    { type: 'in', dur: 5500, text: "Light Inhale (Nose)", sizeStart: 0, sizeEnd: 0.8 },
+                    { type: 'out', dur: 5500, text: "Slow Exhale (Nose)", sizeStart: 0.8, sizeEnd: 0 }
+                ],
+                details: `
+                    <h2 class="dd-main-title">Optimal Mode (Resonance)</h2>
+                    <h3>The Goal</h3>
+                    <p>To train your baseline breathing for normal conditions, maximizing overall health and autonomic nervous system balance.</p>
+                    <h3>The Technique</h3>
+                    <p><b>Nose, Low, Slow, Light.</b> Breathe gently through the nose into the belly (diaphragm). Do not fill the lungs completely; keep it quiet and subtle.</p>
+                    <h3>The Science</h3>
+                    <p>The 5.5-second rhythm synchronizes your heart rate and breath, optimizing Heart Rate Variability (HRV). Crucially, breathing through the nose produces <b>Nitric Oxide (NO)</b> in the sinuses.</p>
+                    <div class="dd-highlight">Nitric Oxide is a potent vasodilator that lowers blood pressure and helps kill airborne pathogens. Mouth breathing bypasses its production entirely.</div>
+                `
+            },
+            balance: {
+                colors: { start: [79, 195, 247], end: [255, 255, 255] },
+                bg: "#1e3a5f",
+                quick: "Equal breathing to regulate stress.",
+                phases: [
+                    { type: 'in', dur: 4000, text: "Inhale (Nose)", sizeStart: 0, sizeEnd: 1 },
+                    { type: 'hold', dur: 4000, text: "Hold", sizeStart: 1, sizeEnd: 1 },
+                    { type: 'out', dur: 4000, text: "Exhale (Nose)", sizeStart: 1, sizeEnd: 0 },
+                    { type: 'hold', dur: 4000, text: "Hold", sizeStart: 0, sizeEnd: 0 }
+                ],
+                details: `
+                    <h2 class="dd-main-title">Balance Mode (Box Breathing)</h2>
+                    <h3>The Goal</h3>
+                    <p>To reset the nervous system and regain focus during high-stress situations. Used by elite military and corporate performers.</p>
+                    <h3>The Technique</h3>
+                    <p>Inhale, Hold, Exhale, Hold in equal measure (4s each). Imagine traveling around the four sides of a square.</p>
+                    <h3>The Science</h3>
+                    <p>The equal ratio balances the sympathetic (alert) and parasympathetic (calm) branches of the nervous system. Nasal inhalation ensures air is filtered and delivers Nitric Oxide to the lungs. The "hold on empty" builds CO2 tolerance, preventing panic.</p>
+                `
+            },
+            cold: {
+                colors: { start: [255, 87, 34], end: [255, 171, 64] },
+                bg: "#3e2723",
+                quick: "Rapid rhythm to generate heat.",
+                phases: [
+                    { type: 'in', dur: 1000, text: "Forceful In (Nose)", sizeStart: 0, sizeEnd: 1 },
+                    { type: 'out', dur: 1000, text: "Forceful Out (Nose)", sizeStart: 1, sizeEnd: 0 }
+                ],
+                details: `
+                    <h2 class="dd-main-title">Warming Mode (Inner Fire)</h2>
+                    <h3>The Goal</h3>
+                    <p>To generate internal body heat and increase alertness in cold environments or before physical exertion.</p>
+                    <h3>The Technique</h3>
+                    <p>Similar to "Bhastrika." Inhale and exhale forcefully through the nose. Engage your core and diaphragm like a bellows pump.</p>
+                    <h3>The Science</h3>
+                    <p>Rapid nasal breathing acts as a heat exchanger, retaining heat and moisture that would be lost through the mouth. The vigorous mechanical action of the diaphragm increases metabolic activity, warming the body's core.</p>
+                `
+            },
+            heat: {
+                colors: { start: [128, 222, 234], end: [224, 247, 250] },
+                bg: "#006064",
+                quick: "Slow cooling breath (Sitali).",
+                phases: [
+                    { type: 'in', dur: 4000, text: "Slow In (Mouth)", sizeStart: 0, sizeEnd: 1 },
+                    { type: 'hold', dur: 2000, text: "Hold", sizeStart: 1, sizeEnd: 1 },
+                    { type: 'out', dur: 6000, text: "Slow Out (Nose)", sizeStart: 1, sizeEnd: 0 },
+                    { type: 'hold', dur: 2000, text: "Hold", sizeStart: 0, sizeEnd: 0 }
+                ],
+                details: `
+                    <h2 class="dd-main-title">Cooling Mode (Sitali)</h2>
+                    <h3>The Goal</h3>
+                    <p>To lower body temperature and heart rate in hot environments or during moments of agitation.</p>
+                    <h3>The Technique</h3>
+                    <p>Curl your tongue like a taco (or purse lips) and inhale slowly through the mouth—like sucking through a straw. Exhale slowly through the nose.</p>
+                    <h3>The Science</h3>
+                    <p>This is a rare exception where mouth breathing is useful. Inhaling over the moist tongue causes evaporation, physically cooling the air before it enters the lungs. Exhaling through the nose traps moisture to prevent dehydration.</p>
+                `
+            },
+            relief: {
+                colors: { start: [156, 39, 176], end: [225, 190, 231] },
+                bg: "#261C2C", 
+                quick: "Physiological sigh to drop stress.",
+                phases: [
+                    { type: 'in', dur: 1500, text: "Inhale (Nose)", sizeStart: 0, sizeEnd: 0.70 },
+                    { type: 'in2', dur: 800, text: "Top-up Inhale (Nose)", sizeStart: 0.70, sizeEnd: 1 },
+                    { type: 'out', dur: 4000, text: "Long Sigh (Mouth)", sizeStart: 1, sizeEnd: 0 }
+                ],
+                details: `
+                    <h2 class="dd-main-title">Relief Mode (Physiological Sigh)</h2>
+                    <h3>The Goal</h3>
+                    <p>The emergency brake for acute stress, panic, or overwhelm. It provides an instant physiological reset.</p>
+                    <h3>The Technique</h3>
+                    <p>Take two inhales through the nose (a long one, then a short one to top it up). Follow immediately with a long, audible sigh through the mouth.</p>
+                    <h3>The Science</h3>
+                    <p>The double nasal inhale pops open collapsed alveoli (air sacs) in the lungs. The long mouth exhale dumps Carbon Dioxide rapidly, signaling the brain to exit the "Fight or Flight" state.</p>
+                `
+            },
+            energy: {
+                colors: { start: [255, 235, 59], end: [255, 255, 255] },
+                bg: "#333300", 
+                quick: "Circular breathing for alertness.",
+                phases: [
+                    { type: 'in', dur: 1800, text: "Inhale (Mouth)", sizeStart: 0, sizeEnd: 1 },
+                    { type: 'out', dur: 1500, text: "Exhale (Mouth)", sizeStart: 1, sizeEnd: 0 }
+                ],
+                details: `
+                    <h2 class="dd-main-title">Energy Mode (Super-ventilation)</h2>
+                    <h3>The Goal</h3>
+                    <p>To induce an altered state of high alertness or prepare for maximum physical effort. <b>Use with caution.</b></p>
+                    <h3>The Technique</h3>
+                    <p>Circular breathing with no pauses. Mouth In, Mouth Out.</p>
+                    <h3>The Science</h3>
+                    <p>This purges CO2 from the blood. While you feel "charged," your tissues actually receive less oxygen due to the Bohr Effect. This triggers an adrenaline response. It bypasses nasal filtration and NO production entirely.</p>
+                `
+            }
+        };
+
+        // --- Animation State ---
+        let startTime = null;
+        let currentPhases = [];
+        let totalCycleDuration = 4000;
+        let lastPhaseIndex = -1;
+        let dashOffset = 0;
+
+        // --- Setup ---
+        function loadSettings() {
+            const saved = localStorage.getItem('breathingBoxSettings');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if(parsed.global) appSettings.global = {...appSettings.global, ...parsed.global};
+                    if(parsed.modes) {
+                        for (const m in parsed.modes) {
+                            if(appSettings.modes[m]) {
+                                appSettings.modes[m] = {...appSettings.modes[m], ...parsed.modes[m]};
+                            }
+                        }
+                    }
+                } catch (e) { console.error(e); }
+            }
+            volumeSlider.value = appSettings.global.volume * 100;
+        }
+
+        function saveSettings() {
+            localStorage.setItem('breathingBoxSettings', JSON.stringify(appSettings));
+        }
+
+        function resizeCanvas() {
+            const containerWidth = Math.min(window.innerWidth - 40, 350);
+            canvas.width = containerWidth;
+            canvas.height = containerWidth;
+            size = containerWidth;
+            baseBoxSize = size * 0.35;
+            maxExpand = size * 0.25;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        loadSettings();
+        resizeCanvas();
+
+        // --- Core Logic ---
+
+        function updateSetting(key, value) {
+            appSettings.modes[currentMode][key] = value;
+            if (key === 'visual') updateVisualUI(value);
+            if (key === 'shape') updateShapeUI(value);
+            if (key === 'tone') updateToneUI(value);
+            saveSettings();
+        }
+        
+        function updateMasterVolume(val) {
+            appSettings.global.volume = val / 100;
+            saveSettings();
+        }
+
+        function updateVisualUI(mode) {
+            vizBox.classList.toggle('active', mode === 'box');
+            vizElemental.classList.toggle('active', mode === 'elemental');
+            if (mode === 'box') { shapeToggle.classList.add('visible'); } 
+            else { shapeToggle.classList.remove('visible'); }
+        }
+
+        function updateShapeUI(shape) {
+            shapeSquareBtn.classList.toggle('active', shape === 'square');
+            shapeCircleBtn.classList.toggle('active', shape === 'circle');
+        }
+        
+        function updateToneUI(type) {
+            toneSelector.value = type;
+            if (TONE_DESCRIPTIONS[type]) toneDesc.textContent = TONE_DESCRIPTIONS[type];
+            // Fix: Re-init sound to apply tone change if running
+            if (soundEnabled && audioCtx) {
+                stopAudio();
+                initAudio();
+            }
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            startTime = null; 
+            lastPhaseIndex = -1;
+
+            // UI Update
+            modeButtons.forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`button[data-mode="${mode}"]`).classList.add('active');
+
+            // Apply Mode Configuration
+            const config = MODES[mode];
+            canvas.style.backgroundColor = config.bg;
+            document.body.style.backgroundColor = config.bg;
+            document.documentElement.style.setProperty('--accent', getAccentColor(mode));
+
+            quickInfo.textContent = config.quick;
+            deepDiveContent.innerHTML = config.details;
+            currentPhases = config.phases;
+            totalCycleDuration = currentPhases.reduce((acc, p) => acc + p.dur, 0);
+            
+            // Apply Saved Preferences for this Mode
+            const prefs = appSettings.modes[mode];
+            updateVisualUI(prefs.visual);
+            updateShapeUI(prefs.shape);
+            updateToneUI(prefs.tone);
+            
+            // Fix: Restart audio when switching modes to apply that mode's tone preference
+            if (soundEnabled && audioCtx) {
+                stopAudio();
+                initAudio();
+            }
+        }
+
+        function getAccentColor(mode) {
+            switch(mode) {
+                case 'optimal': return '#4caf50';
+                case 'balance': return '#48cfad';
+                case 'cold': return '#ff7043';
+                case 'heat': return '#26c6da';
+                case 'relief': return '#ab47bc';
+                case 'energy': return '#fbc02d';
+                default: return '#48cfad';
+            }
+        }
+
+        // --- Visual Functions ---
+        function drawSnowflake(ctx, cx, cy, sizeFactor) {
+            const scale = 0.5 + (sizeFactor * 0.5);
+            const alpha = 0.3 + (sizeFactor * 0.5);
+            ctx.strokeStyle = `rgba(224, 247, 250, ${alpha})`;
+            ctx.lineWidth = 3;
+            ctx.save(); ctx.translate(cx, cy); ctx.rotate(Date.now() * 0.0005); ctx.scale(scale, scale);
+            for (let i = 0; i < 6; i++) {
+                ctx.rotate(Math.PI / 3); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0, 80);
+                ctx.moveTo(0, 40); ctx.lineTo(20, 50); ctx.moveTo(0, 40); ctx.lineTo(-20, 50);
+                ctx.moveTo(0, 60); ctx.lineTo(15, 70); ctx.moveTo(0, 60); ctx.lineTo(-15, 70); ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function drawFlame(ctx, cx, cy, sizeFactor) {
+            const t = Date.now();
+            const flicker1 = Math.sin(t * 0.01) * 5 + Math.random() * 5;
+            const flicker2 = Math.cos(t * 0.015) * 5 + Math.random() * 5;
+            const flicker3 = Math.sin(t * 0.008) * 5 + Math.random() * 5;
+            const baseHeight = 40 + (sizeFactor * 60);
+            const alpha = 0.6 + (sizeFactor * 0.4);
+            ctx.save(); ctx.translate(cx, cy + 40); 
+            ctx.fillStyle = `rgba(255, 87, 34, ${alpha})`; ctx.beginPath(); ctx.moveTo(-15, 0); ctx.quadraticCurveTo(-25, -20, -20 + flicker2, -baseHeight * 0.7); ctx.quadraticCurveTo(0, -20, 5, 0); ctx.fill();
+            ctx.fillStyle = `rgba(255, 87, 34, ${alpha})`; ctx.beginPath(); ctx.moveTo(15, 0); ctx.quadraticCurveTo(25, -20, 20 + flicker3, -baseHeight * 0.6); ctx.quadraticCurveTo(0, -20, -5, 0); ctx.fill();
+            ctx.fillStyle = `rgba(255, 152, 0, ${alpha})`; ctx.beginPath(); ctx.moveTo(-10, 0); ctx.quadraticCurveTo(-15, -30, 0 + flicker1, -baseHeight); ctx.quadraticCurveTo(15, -30, 10, 0); ctx.fill();
+            ctx.fillStyle = `rgba(255, 235, 59, ${alpha + 0.2})`; ctx.beginPath(); ctx.ellipse(0, -5, 10 + sizeFactor*2, 15 + sizeFactor*5, 0, 0, Math.PI*2); ctx.fill();
+            ctx.restore();
+        }
+
+        function drawLotus(ctx, cx, cy, sizeFactor) {
+            const petals = 8; const radius = 20 + (sizeFactor * 80);
+            ctx.fillStyle = `rgba(165, 214, 167, ${0.3 + sizeFactor*0.4})`; ctx.strokeStyle = `rgba(76, 175, 80, 0.8)`; ctx.lineWidth = 2;
+            ctx.save(); ctx.translate(cx, cy); ctx.rotate(Date.now() * 0.0002);
+            for(let i=0; i<petals; i++) { ctx.rotate((Math.PI * 2) / petals); ctx.beginPath(); ctx.ellipse(0, radius/2, 10, radius/2, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke(); }
+            ctx.restore(); ctx.beginPath(); ctx.arc(cx, cy, 10 + sizeFactor*5, 0, Math.PI*2); ctx.fillStyle = "#fff"; ctx.fill();
+        }
+
+        function drawEnso(ctx, cx, cy, sizeFactor) {
+            const radius = 50 + (sizeFactor * 50);
+            ctx.strokeStyle = `rgba(79, 195, 247, 0.8)`; ctx.lineWidth = 8 + (sizeFactor * 4); ctx.lineCap = "round";
+            ctx.beginPath(); ctx.arc(cx, cy, radius, 0.2, Math.PI * 1.8); ctx.stroke();
+            ctx.fillStyle = `rgba(255, 255, 255, ${sizeFactor})`; ctx.beginPath(); ctx.arc(cx, cy, 5 + sizeFactor*10, 0, Math.PI*2); ctx.fill();
+        }
+
+        function drawRipples(ctx, cx, cy, sizeFactor) {
+            const count = 3; ctx.lineWidth = 3;
+            for(let i=0; i<count; i++) {
+                const offset = i * 30; let r = (sizeFactor * 100) + offset; let alpha = 1 - (r / 150); if (alpha < 0) alpha = 0;
+                ctx.strokeStyle = `rgba(225, 190, 231, ${alpha})`; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
+            }
+        }
+
+        function drawSunburst(ctx, cx, cy, sizeFactor) {
+            const rays = 12; const innerR = 20 + (sizeFactor * 20); const outerR = 60 + (sizeFactor * 80);
+            ctx.fillStyle = `rgba(255, 235, 59, 0.8)`; ctx.save(); ctx.translate(cx, cy); ctx.rotate(Date.now() * 0.002);
+            ctx.beginPath();
+            for(let i=0; i<rays*2; i++) { const r = (i % 2 === 0) ? outerR : innerR; const angle = (Math.PI * i) / rays; ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r); }
+            ctx.closePath(); ctx.fill(); ctx.restore();
+        }
+
+        function drawElemental(ctx, width, height, sizeFactor) {
+            const cx = width / 2; const cy = height / 2;
+            switch(currentMode) {
+                case 'optimal': drawLotus(ctx, cx, cy, sizeFactor); break;
+                case 'balance': drawEnso(ctx, cx, cy, sizeFactor); break;
+                case 'cold': drawFlame(ctx, cx, cy, sizeFactor); break;
+                case 'heat': drawSnowflake(ctx, cx, cy, sizeFactor); break;
+                case 'relief': drawRipples(ctx, cx, cy, sizeFactor); break;
+                case 'energy': drawSunburst(ctx, cx, cy, sizeFactor); break;
+                default: drawLotus(ctx, cx, cy, sizeFactor);
+            }
+        }
+
+        // --- Audio Logic ---
+        function toggleDetails() {
+            const isOpen = deepDive.classList.contains('open');
+            if (isOpen) { deepDive.classList.remove('open'); infoToggleBtn.innerHTML = "Tech Specs ▼"; infoToggleBtn.classList.remove('active'); }
+            else { deepDive.classList.add('open'); infoToggleBtn.innerHTML = "Close ▲"; infoToggleBtn.classList.add('active'); setTimeout(() => { deepDive.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100); }
+        }
+
+        function toggleGuide() {
+            const isOpen = guideModal.classList.contains('open');
+            if (isOpen) { guideModal.classList.remove('open'); }
+            else { guideModal.classList.add('open'); }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            soundBtn.classList.toggle('active', soundEnabled);
+            if (soundEnabled) { audioSettings.classList.add('visible'); initAudio(); }
+            else { audioSettings.classList.remove('visible'); stopAudio(); }
+        }
+        
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            filterNode = audioCtx.createBiquadFilter(); filterNode.type = 'lowpass'; filterNode.frequency.value = 400; filterNode.connect(audioCtx.destination);
+            gainNode = audioCtx.createGain(); gainNode.connect(filterNode);
+            oscillators = [];
+            const type = appSettings.modes[currentMode].tone;
+            if (type === 'ethereal') { createOsc('sine', 1.0); createOsc('sine', 1.5); }
+            else { let wtype = 'sine'; if (type === 'warm') wtype = 'triangle'; createOsc(wtype, type === 'deep' ? 0.5 : 1.0); }
+        }
+        
+        function createOsc(type, freqMult) {
+            const osc = audioCtx.createOscillator(); osc.type = type; osc.connect(gainNode); osc.start(); osc._freqMult = freqMult; oscillators.push(osc);
+        }
+        
+        function stopAudio() {
+            oscillators.forEach(osc => { try { osc.stop(); osc.disconnect(); } catch(e){} });
+            oscillators = [];
+            if (gainNode) { gainNode.disconnect(); gainNode = null; }
+            if (filterNode) { filterNode.disconnect(); filterNode = null; }
+        }
+
+        function toggleVibration() {
+            vibrationEnabled = !vibrationEnabled;
+            vibeBtn.classList.toggle('active', vibrationEnabled);
+            if (vibrationEnabled && navigator.vibrate) navigator.vibrate(50);
+        }
+
+        function triggerHaptic(type) {
+             if (vibrationEnabled && navigator.vibrate) {
+                if (type.includes('in')) navigator.vibrate(60);
+                else if (type.includes('out')) navigator.vibrate([40, 40]);
+                else navigator.vibrate(30);
+            }
+        }
+
+        function updateAudio(sizeFactor) {
+            if (!soundEnabled || !gainNode || oscillators.length === 0) return;
+            const now = audioCtx.currentTime;
+            const tone = appSettings.modes[currentMode].tone;
+            let minVol = 0.05; let maxVol = 0.3;
+            if (tone === 'deep') { minVol = 0.2; maxVol = 0.5; }
+            let targetVol = (minVol + ((maxVol - minVol) * sizeFactor)) * appSettings.global.volume;
+            const minFreq = 150; const maxFreq = 280;
+            const targetBaseFreq = minFreq + ((maxFreq - minFreq) * sizeFactor);
+            oscillators.forEach(osc => { osc.frequency.setTargetAtTime(targetBaseFreq * osc._freqMult, now, 0.1); });
+            gainNode.gain.setTargetAtTime(targetVol, now, 0.1);
+            if (filterNode) {
+                const minFilt = 200; const maxFilt = 600;
+                const targetFilt = minFilt + ((maxFilt - minFilt) * sizeFactor);
+                filterNode.frequency.setTargetAtTime(targetFilt, now, 0.1);
+            }
+        }
+
+        // --- Box Traveler ---
+        function drawBoxTraveler(ctx, x, y, size, progress, phaseIdx) {
+            let tx, ty;
+            const p = progress;
+            switch(phaseIdx) {
+                case 0: tx = x; ty = (y + size) - (size * p); break;
+                case 1: tx = x + (size * p); ty = y; break;
+                case 2: tx = x + size; ty = y + (size * p); break;
+                case 3: tx = (x + size) - (size * p); ty = y + size; break;
+                default: return;
+            }
+            ctx.beginPath(); ctx.fillStyle = "#fff"; ctx.shadowBlur = 15; ctx.shadowColor = "#fff"; ctx.arc(tx, ty, 6, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0; 
+        }
+
+        // --- Animation Loop ---
+        function animate(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const elapsed = (timestamp - startTime) % totalCycleDuration;
+            let timeAccumulator = 0;
+            let activePhase = currentPhases[0];
+            let phaseProgress = 0;
+            let currentPhaseIndex = 0;
+            for (let i = 0; i < currentPhases.length; i++) {
+                if (elapsed < timeAccumulator + currentPhases[i].dur) {
+                    activePhase = currentPhases[i];
+                    currentPhaseIndex = i;
+                    phaseProgress = (elapsed - timeAccumulator) / activePhase.dur;
+                    break;
+                }
+                timeAccumulator += currentPhases[i].dur;
+            }
+            if (currentPhaseIndex !== lastPhaseIndex) {
+                triggerHaptic(activePhase.type);
+                statusText.textContent = activePhase.text;
+                lastPhaseIndex = currentPhaseIndex;
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const easeInOut = t => t<.5 ? 2*t*t : -1+(4-2*t)*t;
+            let progressCalc = phaseProgress;
+            if (currentMode !== 'energy') progressCalc = easeInOut(phaseProgress);
+            const sizeFactor = activePhase.sizeStart + (activePhase.sizeEnd - activePhase.sizeStart) * progressCalc;
+            
+            updateAudio(sizeFactor);
+
+            const prefs = appSettings.modes[currentMode];
+
+            if (prefs.visual === 'elemental') {
+                drawElemental(ctx, canvas.width, canvas.height, sizeFactor);
+            } else {
+                const currentSize = baseBoxSize + (maxExpand * sizeFactor);
+                const x = (canvas.width - currentSize) / 2;
+                const y = (canvas.height - currentSize) / 2;
+                const conf = MODES[currentMode];
+                const rgb = {
+                    r: conf.colors.start[0] + (conf.colors.end[0] - conf.colors.start[0]) * sizeFactor,
+                    g: conf.colors.start[1] + (conf.colors.end[1] - conf.colors.start[1]) * sizeFactor,
+                    b: conf.colors.start[2] + (conf.colors.end[2] - conf.colors.start[2]) * sizeFactor
+                };
+                
+                ctx.shadowBlur = 25 * sizeFactor;
+                ctx.shadowColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6)`;
+                ctx.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4)`;
+                ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.9)`;
+                ctx.lineWidth = 3;
+
+                if (prefs.shape === 'circle') {
+                    ctx.beginPath(); ctx.arc(canvas.width/2, canvas.height/2, currentSize/2, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                } else {
+                    drawRoundedRect(ctx, x, y, currentSize, currentSize, 25); ctx.fill(); ctx.stroke();
+                    if (currentMode === 'balance') {
+                        drawBoxTraveler(ctx, x, y, currentSize, phaseProgress, currentPhaseIndex);
+                    }
+                }
+                ctx.shadowBlur = 0;
+            }
+            requestAnimationFrame(animate);
+        }
+
+        function drawRoundedRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y); ctx.quadraticCurveTo(x + width, y, x + width, y + radius); ctx.lineTo(x + width, y + height - radius); ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); ctx.lineTo(x + radius, y + height); ctx.quadraticCurveTo(x, y + height, x, y + height - radius); ctx.lineTo(x, y + radius); ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath();
+        }
+
+        // Init
+        // Load settings handled at top of script
+        setMode('optimal'); // This will trigger UI update based on loaded settings
+        requestAnimationFrame(animate);
+
+    </script>
+</body>
+</html>
