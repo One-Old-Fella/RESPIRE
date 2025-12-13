@@ -1,16 +1,33 @@
-{
+{{
   "name": "RESPIRE: System Regulation",
   "short_name": "RESPIRE",
   "start_url": "./index.html",
+  "id": "/RESPIRE/",
   "display": "standalone",
   "background_color": "#102a43",
   "theme_color": "#102a43",
+  "orientation": "portrait",
   "description": "Advanced breathing regulation tool for high-performance states.",
+  "categories": ["health", "lifestyle", "medical"],
   "icons": [
     {
       "src": "icon.png",
       "sizes": "512x512",
       "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "screenshot1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow"
     }
   ]
 }
