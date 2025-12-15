@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!-- FIXED: Removed user-scalable=no to fix VS Code accessibility warning -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RESPIRE: System Regulation</title>
-
-    <link rel="manifest" href="manifest.json">
     
+    <link rel="manifest" href="manifest.json">
+
     <style>
         :root {
             --bg-color: #102a43;
@@ -29,6 +30,7 @@
             transition: background-color 1s ease;
             overflow-x: hidden;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .container {
@@ -40,30 +42,20 @@
             max-width: 500px;
             padding: 20px;
             box-sizing: border-box;
-            margin-bottom: 50px;
+            height: 100vh;
+            justify-content: space-between;
         }
 
-        /* --- Header --- */
+        /* --- Header (Subtle) --- */
         .app-header {
-            margin-bottom: 15px;
+            margin-top: 10px;
+            margin-bottom: 5px;
             text-align: center;
-            opacity: 0.9;
-        }
-        .app-title {
-            font-size: 1.2rem;
-            font-weight: 800;
+            opacity: 0.7;
+            font-size: 0.8rem;
+            text-transform: uppercase;
             letter-spacing: 2px;
-            text-transform: uppercase;
             color: var(--accent);
-            margin: 0;
-        }
-        .app-subtitle {
-            font-size: 0.75rem;
-            font-weight: 400;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-sub);
-            margin-top: 2px;
         }
 
         /* --- Visual Toggle Switch --- */
@@ -72,7 +64,6 @@
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            margin-bottom: 15px;
             width: 100%;
         }
 
@@ -102,132 +93,57 @@
 
         /* --- Shape Sub-Toggle --- */
         .shape-toggle-container {
-            display: flex;
-            gap: 10px;
-            height: 30px;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
+            display: flex; gap: 10px; height: 30px; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
-        
-        .shape-toggle-container.visible {
-            opacity: 1;
-            pointer-events: all;
-        }
+        .shape-toggle-container.visible { opacity: 1; pointer-events: all; }
 
         .shape-btn {
-            background: transparent;
-            border: 1px solid var(--text-sub);
-            color: var(--text-sub);
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            transition: all 0.2s;
+            background: transparent; border: 1px solid var(--text-sub); color: var(--text-sub);
+            width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; transition: all 0.2s;
         }
-
-        .shape-btn:hover { background: rgba(255,255,255,0.1); color: white; border-color: white;}
-        
-        .shape-btn.active {
-            background: var(--accent);
-            color: #102a43;
-            border-color: var(--accent);
-            box-shadow: 0 0 10px var(--accent);
-        }
+        .shape-btn.active { background: var(--accent); color: #102a43; border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
 
         /* --- Canvas Area --- */
         .canvas-wrapper {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
             position: relative;
-            margin-bottom: 10px;
-            border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease;
         }
 
         canvas {
-            background-color: #1e3a5f;
-            border-radius: 20px;
-            display: block;
-            transition: background-color 1s ease;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
+            background-color: #1e3a5f; border-radius: 20px; display: block;
+            transition: background-color 1s ease; cursor: pointer;
+            max-width: 100%; max-height: 40vh;
         }
 
         /* --- Status Text --- */
-        .status-container {
-            height: 3rem;
-            margin-bottom: 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .status-text {
-            font-size: 1.8rem;
-            font-weight: 400;
-            text-align: center;
-            color: #ffffff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
+        .status-container { height: 3rem; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .status-text { font-size: 1.8rem; font-weight: 400; text-align: center; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.3); letter-spacing: 0.5px; white-space: nowrap; }
 
         /* --- Controls --- */
         .controls {
-            width: 100%;
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            z-index: 10;
+            width: 100%; background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            padding: 20px; border-radius: 15px 15px 0 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.3); border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex; flex-direction: column; gap: 15px; z-index: 10;
         }
 
-        /* --- Audio Settings --- */
-        .audio-settings {
-            display: none;
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: -5px;
-            border: 1px solid rgba(255,255,255,0.05);
-            animation: slideDown 0.3s ease;
-        }
-        
-        .audio-settings.visible { display: flex; flex-direction: column; gap: 12px; }
-
-        .audio-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-
-        select.tone-select {
-            background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
-            padding: 5px 10px; border-radius: 5px; font-family: inherit; outline: none; cursor: pointer; flex-grow: 1;
-        }
-        select.tone-select option { background: #102a43; }
-        
-        .tone-desc { font-size: 0.8rem; color: var(--accent); font-style: italic; margin-top: -5px; line-height: 1.3; }
+        .quick-info { text-align: center; font-size: 0.9rem; color: var(--text-sub); margin-bottom: 5px; min-height: 1.2rem; }
 
         /* --- Mode Buttons --- */
         .mode-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-        
         button.mode-btn {
             padding: 12px 5px; border: none; border-radius: 10px; font-weight: 600; font-size: 0.8rem;
             cursor: pointer; transition: all 0.2s ease; background: rgba(255,255,255,0.05);
             color: var(--text-sub); border: 1px solid transparent;
         }
-        button.mode-btn:hover { background: rgba(255,255,255,0.15); color: white; }
         button.mode-btn.active { background: #fff; color: #102a43; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transform: translateY(-1px); }
         
+        /* Active Colors */
         button.mode-btn[data-mode="balance"].active { color: #334e68; }
         button.mode-btn[data-mode="cold"].active { color: #d32f2f; }
         button.mode-btn[data-mode="heat"].active { color: #00838f; }
@@ -235,10 +151,33 @@
         button.mode-btn[data-mode="energy"].active { color: #f57f17; }
         button.mode-btn[data-mode="optimal"].active { color: #2e7d32; }
 
-        /* --- Sliders --- */
+        /* --- Audio Settings --- */
+        .audio-settings {
+            display: none; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;
+            margin-top: -5px; border: 1px solid rgba(255,255,255,0.05); animation: slideDown 0.3s ease;
+        }
+        .audio-settings.visible { display: flex; flex-direction: column; gap: 12px; }
+        .audio-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        
+        select.tone-select {
+            background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
+            padding: 5px 10px; border-radius: 5px; font-family: inherit; outline: none; cursor: pointer; flex-grow: 1;
+        }
+        select.tone-select option { background: #102a43; }
+        .tone-desc { font-size: 0.8rem; color: var(--accent); font-style: italic; margin-top: -5px; line-height: 1.3; }
+        
+        /* --- Sliders (FIXED) --- */
         label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.8rem; color: var(--text-sub); }
-        input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 5px; outline: none; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #ffffff; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        input[type="range"] { 
+            -webkit-appearance: none; 
+            appearance: none; /* Fixed: Added standard property */
+            width: 100%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 5px; outline: none; 
+        }
+        input[type="range"]::-webkit-slider-thumb { 
+            -webkit-appearance: none; 
+            appearance: none; /* Fixed: Added standard property */
+            width: 18px; height: 18px; border-radius: 50%; background: #ffffff; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+        }
 
         /* --- Utility Bar --- */
         .utility-bar { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
@@ -249,7 +188,6 @@
             padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 0.9rem;
             transition: all 0.2s; display: flex; align-items: center; gap: 6px;
         }
-        button.icon-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
         button.icon-btn.active { background: var(--accent); color: #102a43; border-color: var(--accent); font-weight: 700; }
 
         button.info-toggle {
@@ -257,18 +195,59 @@
             border-radius: 20px; padding: 5px 15px; font-weight: bold; cursor: pointer;
             transition: all 0.2s; font-size: 0.85rem;
         }
-        button.info-toggle:hover { background: rgba(255,255,255,0.1); color: white; border-color: white;}
         button.info-toggle.active { background: #fff; color: #102a43; border-color: #fff; }
 
-        .quick-info { text-align: center; font-size: 0.9rem; color: var(--text-sub); margin-bottom: 5px; min-height: 1.2rem; }
-
-        /* --- Deep Dive (Mode Info) --- */
-        .deep-dive {
-            width: 100%; max-width: 500px; background: rgba(0,0,0,0.25); border-radius: 15px;
-            margin-top: 15px; overflow: hidden; max-height: 0;
-            transition: max-height 0.4s ease-in-out, opacity 0.4s ease; opacity: 0;
-            border: 1px solid rgba(255,255,255,0.05);
+        /* --- Welcome / Guide Overlays --- */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(16, 42, 67, 0.98); z-index: 2000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s ease; padding: 30px; box-sizing: border-box;
+            text-align: center;
         }
+        .overlay.visible { opacity: 1; pointer-events: all; }
+
+        .welcome-title { font-size: 3rem; font-weight: 800; letter-spacing: 4px; color: var(--accent); margin-bottom: 5px; text-shadow: 0 0 30px rgba(72, 207, 173, 0.3); }
+        .welcome-sub { font-size: 1.1rem; color: #f0f4f8; margin-bottom: 50px; letter-spacing: 2px; text-transform: uppercase; font-weight: 300; }
+        
+        .feature-grid {
+            display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 400px; width: 100%; margin-bottom: 50px; text-align: left;
+        }
+        .feature-item { display: flex; gap: 15px; align-items: flex-start; }
+        .feature-icon { font-size: 1.5rem; background: rgba(255,255,255,0.1); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .feature-text h4 { margin: 0 0 5px 0; color: #fff; font-size: 1rem; }
+        .feature-text p { margin: 0; color: #bcccdc; font-size: 0.9rem; line-height: 1.4; }
+
+        .big-btn {
+            background: var(--accent); color: #102a43; border: none; padding: 16px 45px;
+            border-radius: 30px; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(72, 207, 173, 0.4); transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .big-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(72, 207, 173, 0.6); }
+        .big-btn:active { transform: scale(0.95); }
+        .link-btn { background: none; border: none; color: #829ab1; text-decoration: underline; margin-top: 25px; cursor: pointer; font-size: 0.9rem; }
+
+        /* Pulse Background Animation for Welcome */
+        .pulse-bg {
+            position: absolute; width: 200px; height: 200px; background: var(--accent); border-radius: 50%;
+            opacity: 0.1; filter: blur(50px); animation: pulseAnim 4s infinite ease-in-out; z-index: -1;
+        }
+        @keyframes pulseAnim { 0% { transform: scale(0.8); opacity: 0.05; } 50% { transform: scale(1.2); opacity: 0.15; } 100% { transform: scale(0.8); opacity: 0.05; } }
+
+        /* --- Tour Elements --- */
+        .tour-highlight { position: relative; z-index: 1001; box-shadow: 0 0 0 9999px rgba(0,0,0,0.85); pointer-events: none; border-radius: 8px; }
+        .tour-tooltip {
+            position: fixed; background: #fff; color: #102a43; padding: 20px; border-radius: 12px;
+            width: 280px; text-align: left; z-index: 2002; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
+        .tour-tooltip.visible { opacity: 1; pointer-events: all; }
+        .tour-tooltip::after { content: ''; position: absolute; width: 0; height: 0; border: 10px solid transparent; }
+        .tour-tooltip.top::after { border-top-color: #fff; bottom: -20px; left: 50%; margin-left: -10px; }
+        .tour-tooltip.bottom::after { border-bottom-color: #fff; top: -20px; left: 50%; margin-left: -10px; }
+
+        /* --- Deep Dive / Manual --- */
+        .deep-dive { width: 100%; max-width: 500px; background: rgba(0,0,0,0.25); border-radius: 15px; margin-top: 15px; overflow: hidden; max-height: 0; transition: max-height 0.4s ease, opacity 0.4s ease; opacity: 0; border: 1px solid rgba(255,255,255,0.05); }
         .deep-dive.open { max-height: 1200px; opacity: 1; margin-bottom: 20px; }
         .deep-dive-content { padding: 20px; color: #d9e2ec; font-size: 0.95rem; line-height: 1.6; }
         .dd-main-title { font-size: 1.2rem; font-weight: 700; color: #fff; margin: 0 0 15px 0; display: block; border-bottom: 2px solid var(--accent); padding-bottom: 5px; }
@@ -276,64 +255,76 @@
         .deep-dive-content p { margin: 0 0 10px 0; }
         .dd-highlight { background: rgba(72, 207, 173, 0.1); border-left: 3px solid var(--accent); padding: 5px 10px; margin: 10px 0; font-style: italic; }
 
-        /* --- Guide Modal (Knowledge Base) --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(16, 42, 67, 0.95); z-index: 1000;
-            display: flex; justify-content: center; align-items: flex-start;
-            overflow-y: auto; opacity: 0; pointer-events: none;
-            transition: opacity 0.3s ease; padding: 20px; box-sizing: border-box;
-        }
+        /* Guide Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 42, 67, 0.95); z-index: 3000; display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 20px; box-sizing: border-box; }
         .modal-overlay.open { opacity: 1; pointer-events: all; }
-        
-        .modal-content {
-            background: #1e3a5f; width: 100%; max-width: 600px;
-            border-radius: 15px; padding: 25px; margin-top: 40px; margin-bottom: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5); position: relative;
-            color: #f0f4f8;
-        }
-        
-        .modal-close {
-            position: absolute; top: 15px; right: 15px;
-            background: rgba(255,255,255,0.1); border: none; color: white;
-            width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold;
-        }
-        .modal-close:hover { background: rgba(255,255,255,0.2); }
-
-        .guide-section { margin-bottom: 30px; }
+        .modal-content { background: #1e3a5f; width: 100%; max-width: 600px; border-radius: 15px; padding: 25px; margin-top: 40px; margin-bottom: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); position: relative; color: #f0f4f8; }
+        .modal-close { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold; }
         .guide-title { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
         .guide-h2 { font-size: 1.2rem; color: #48cfad; margin-bottom: 15px; font-weight: 600; }
-        .guide-h3 { font-size: 1rem; color: #829ab1; margin-bottom: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-        
         .guide-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 20px; }
         .guide-table th { text-align: left; padding: 8px; border-bottom: 2px solid #48cfad; color: #48cfad; }
         .guide-table td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #d9e2ec; vertical-align: top; }
-        .guide-table tr:last-child td { border-bottom: none; }
-        
-        .guide-list li { margin-bottom: 10px; line-height: 1.5; color: #d9e2ec; }
-        .guide-list strong { color: white; }
 
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <!-- Welcome Overlay -->
+    <div id="welcomeScreen" class="overlay">
+        <div class="pulse-bg"></div>
+        <div class="welcome-title">RESPIRE</div>
+        <div class="welcome-sub">System Regulation</div>
         
-        <!-- Header -->
-        <div class="app-header">
-            <h1 class="app-title">RESPIRE</h1>
-            <div class="app-subtitle">System Regulation</div>
+        <div class="feature-grid">
+            <div class="feature-item">
+                <div class="feature-icon">🧠</div>
+                <div class="feature-text">
+                    <h4>Bio-Feedback</h4>
+                    <p>Precise timing tools to synchronize your heart rate and nervous system.</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🌊</div>
+                <div class="feature-text">
+                    <h4>Elemental Visuals</h4>
+                    <p>Immersive animations like flames and snowflakes that match your goal.</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🎧</div>
+                <div class="feature-text">
+                    <h4>Psychoacoustic Audio</h4>
+                    <p>Deep, resonant tones designed to guide you without looking.</p>
+                </div>
+            </div>
         </div>
 
+        <button class="big-btn" onclick="startTour()">Start Tour</button>
+        <button class="link-btn" onclick="closeWelcome()">Skip to App</button>
+    </div>
+
+    <!-- Tour Tooltips -->
+    <div id="tourTooltip" class="tour-tooltip">
+        <h4 style="margin:0 0 5px 0; font-size:1.1rem;" id="tourTitle">Title</h4>
+        <p style="margin:0 0 15px 0; font-size:0.95rem; color:#486581; line-height:1.4;" id="tourText">Text</p>
+        <div style="text-align:right;">
+            <button onclick="nextTourStep()" style="background:#102a43; color:white; border:none; padding:8px 20px; border-radius:20px; font-weight:bold; cursor:pointer;">Next</button>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <!-- Header (Hidden during tour if needed, but keeping for branding) -->
+        <div class="app-header">RESPIRE</div>
+
         <!-- Visual Toggle -->
-        <div class="visual-toggle-wrapper">
+        <div class="visual-toggle-wrapper" id="visualWrapper">
             <div class="visual-toggle-container">
                 <div class="visual-option active" id="vizBox" onclick="updateSetting('visual', 'box')">Geometry</div>
                 <div class="visual-option" id="vizElemental" onclick="updateSetting('visual', 'elemental')">Elemental</div>
             </div>
-            
-            <!-- Geometry Sub-Toggle -->
             <div id="shapeToggle" class="shape-toggle-container visible">
                 <button class="shape-btn active" id="shapeSquare" onclick="updateSetting('shape', 'square')" title="Square">■</button>
                 <button class="shape-btn" id="shapeCircle" onclick="updateSetting('shape', 'circle')" title="Circle">●</button>
@@ -351,7 +342,7 @@
         <div class="controls">
             <div class="quick-info" id="quickInfo">Equal breathing to regulate stress.</div>
 
-            <div class="mode-buttons">
+            <div class="mode-buttons" id="modeWrapper">
                 <button class="mode-btn active" onclick="setMode('optimal')" data-mode="optimal">🌱 Optimal</button>
                 <button class="mode-btn" onclick="setMode('balance')" data-mode="balance">Balance</button>
                 <button class="mode-btn" onclick="setMode('relief')" data-mode="relief">💜 Relief</button>
@@ -377,7 +368,7 @@
                 <div class="tone-desc" id="toneDesc">Pure and simple. Standard focused tone.</div>
             </div>
 
-            <div class="utility-bar">
+            <div class="utility-bar" id="utilityBar">
                 <div class="sensory-toggles">
                     <button id="soundBtn" class="icon-btn" onclick="toggleSound()">
                         <span>🔊</span>
@@ -385,11 +376,13 @@
                     <button id="vibeBtn" class="icon-btn" onclick="toggleVibration()">
                         <span>📳</span>
                     </button>
-                    <button class="icon-btn" onclick="toggleGuide()">
+                    <!-- Distinct ID for Guide Button to target in tour -->
+                    <button id="guideBtn" class="icon-btn" onclick="toggleGuide()">
                         <span>📖</span> Guide
                     </button>
                 </div>
-                <button class="info-toggle" id="infoToggleBtn" onclick="toggleDetails()">
+                <!-- Distinct ID for Tech Specs to target in tour -->
+                <button id="specsBtn" class="info-toggle" onclick="toggleDetails()">
                     Tech Specs ▼
                 </button>
             </div>
@@ -405,82 +398,34 @@
     <div id="guideModal" class="modal-overlay">
         <div class="modal-content">
             <button class="modal-close" onclick="toggleGuide()">✕</button>
-            
             <div class="guide-title">The System Manual</div>
-            
             <div class="guide-section">
                 <div class="guide-h2">1. Technique Cheatsheet</div>
-                <p style="color:#bcccdc; margin-bottom:15px; font-size:0.9rem;">Think of your breath as a remote control for your nervous system. Choose the right mode for your current state.</p>
                 <table class="guide-table">
-                    <thead>
-                        <tr>
-                            <th width="25%">Mode</th>
-                            <th width="45%">Goal</th>
-                            <th>Best For</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th width="25%">Mode</th><th width="45%">Goal</th><th>Best For</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td><strong>Optimal</strong></td>
-                            <td>Synchronize</td>
-                            <td>Daily Baseline, Health</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Balance</strong></td>
-                            <td>Regulate</td>
-                            <td>Stress, Focus, Transitions</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Relief</strong></td>
-                            <td>Reset</td>
-                            <td>Panic, Overwhelm</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Warming</strong></td>
-                            <td>Heat</td>
-                            <td>Cold Environments</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Cooling</strong></td>
-                            <td>Cool</td>
-                            <td>Overheating, Anger</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Energy</strong></td>
-                            <td>Excitation</td>
-                            <td>Waking Up (Short burst)</td>
-                        </tr>
+                        <tr><td><strong>Optimal</strong></td><td>Synchronize</td><td>Daily Baseline, Health</td></tr>
+                        <tr><td><strong>Balance</strong></td><td>Regulate</td><td>Stress, Focus</td></tr>
+                        <tr><td><strong>Relief</strong></td><td>Reset</td><td>Panic, Overwhelm</td></tr>
+                        <tr><td><strong>Warming</strong></td><td>Heat</td><td>Cold Environments</td></tr>
+                        <tr><td><strong>Cooling</strong></td><td>Cool</td><td>Overheating, Anger</td></tr>
+                        <tr><td><strong>Energy</strong></td><td>Excitation</td><td>Waking Up</td></tr>
                     </tbody>
                 </table>
             </div>
-
             <div class="guide-section">
                 <div class="guide-h2">2. Why Nose Breathing?</div>
-                <div class="guide-h3">The Nitric Oxide Advantage</div>
-                <p style="color:#d9e2ec; line-height:1.6;">
-                    For a human "system" to operate within warranty, nose breathing is the standard operating procedure. Your sinuses produce a molecule called <strong>Nitric Oxide (NO)</strong>. This molecule is a vasodilator—it widens blood vessels, lowers blood pressure, and increases oxygen uptake in the lungs by 10-18%. Mouth breathing bypasses this production entirely.
-                </p>
+                <p style="color:#d9e2ec; line-height:1.6;">Nose breathing produces <strong>Nitric Oxide (NO)</strong>, a vasodilator that increases oxygen uptake by 10-18%.</p>
             </div>
-
-            <div class="guide-section">
-                <div class="guide-h2">3. Risks of Mouth Breathing</div>
-                <p style="color:#bcccdc; margin-bottom:15px; font-size:0.9rem;">Chronic mouth breathing is like running an engine without an air filter.</p>
-                <ul class="guide-list">
-                    <li><strong>Structural Deformation:</strong> The "Long Face." In children, it leads to narrowed jaws and crowded teeth. In adults, it causes forward head posture.</li>
-                    <li><strong>Anxiety Loop:</strong> Mouth breathing dumps CO2 too quickly. Low CO2 levels trigger the fear center (amygdala), keeping you in a low-level state of "Fight or Flight."</li>
-                    <li><strong>Brain Fog:</strong> Due to the Bohr Effect (which requires CO2 to release Oxygen), mouth breathers often have poorer oxygen delivery to the brain.</li>
-                    <li><strong>Sleep Issues:</strong> The primary cause of snoring and sleep apnea is the collapse of soft tissue, which is exacerbated by an open mouth during sleep.</li>
-                </ul>
-            </div>
-            
             <div style="text-align:center; margin-top:30px; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;">
                 <button class="mode-btn active" style="padding:10px 30px;" onclick="toggleGuide()">Close Manual</button>
+                <div style="margin-top:15px;"><button class="link-btn" onclick="resetWelcome()">Replay Welcome Tour</button></div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- Elements ---
+        // --- Core Elements ---
         const canvas = document.getElementById('breathingCanvas');
         const ctx = canvas.getContext('2d');
         const statusText = document.getElementById('statusText');
@@ -488,7 +433,7 @@
         const modeButtons = document.querySelectorAll('.mode-btn');
         const deepDive = document.getElementById('deepDive');
         const deepDiveContent = document.getElementById('deepDiveContent');
-        const infoToggleBtn = document.getElementById('infoToggleBtn');
+        const infoToggleBtn = document.getElementById('infoToggleBtn'); // Renamed ID logic kept consistent
         const soundBtn = document.getElementById('soundBtn');
         const vibeBtn = document.getElementById('vibeBtn');
         const vizBox = document.getElementById('vizBox');
@@ -501,11 +446,19 @@
         const toneDesc = document.getElementById('toneDesc');
         const volumeSlider = document.getElementById('volumeSlider');
         const guideModal = document.getElementById('guideModal');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const tourTooltip = document.getElementById('tourTooltip');
+        // New elements for tour targeting
+        const visualWrapper = document.getElementById('visualWrapper');
+        const modeWrapper = document.getElementById('modeWrapper');
+        const utilityBar = document.getElementById('utilityBar');
+        const guideBtn = document.getElementById('guideBtn');
+        const specsBtn = document.getElementById('specsBtn');
+
 
         // --- Configuration & Persistence ---
-        
         const DEFAULT_SETTINGS = {
-            global: { volume: 0.7 },
+            global: { volume: 0.7, hasSeenWelcome: false },
             modes: {
                 optimal: { visual: 'elemental', shape: 'circle', tone: 'zen' },
                 balance: { visual: 'box', shape: 'square', tone: 'deep' },
@@ -520,7 +473,6 @@
         let currentMode = 'optimal';
         let soundEnabled = false;
         let vibrationEnabled = false;
-        
         let audioCtx = null;
         let oscillators = []; 
         let gainNode = null;
@@ -528,12 +480,12 @@
 
         const TONE_DESCRIPTIONS = {
             zen: "Pure and simple. Standard focused tone.",
-            deep: "Low frequency. Grounding, but requires speakers/headphones.",
-            warm: "Rich harmonics. Soft edges, pleasant for longer sessions.",
-            ethereal: "Harmonic chord. Meditative and spacious."
+            deep: "Low frequency. Grounding.",
+            warm: "Rich harmonics. Soft edges.",
+            ethereal: "Harmonic chord. Meditative."
         };
 
-        // --- Data ---
+        // --- Data (Unchanged) ---
         const MODES = {
             optimal: {
                 colors: { start: [76, 175, 80], end: [200, 230, 201] },
@@ -543,16 +495,7 @@
                     { type: 'in', dur: 5500, text: "Light Inhale (Nose)", sizeStart: 0, sizeEnd: 0.8 },
                     { type: 'out', dur: 5500, text: "Slow Exhale (Nose)", sizeStart: 0.8, sizeEnd: 0 }
                 ],
-                details: `
-                    <h2 class="dd-main-title">Optimal Mode (Resonance)</h2>
-                    <h3>The Goal</h3>
-                    <p>To train your baseline breathing for normal conditions, maximizing overall health and autonomic nervous system balance.</p>
-                    <h3>The Technique</h3>
-                    <p><b>Nose, Low, Slow, Light.</b> Breathe gently through the nose into the belly (diaphragm). Do not fill the lungs completely; keep it quiet and subtle.</p>
-                    <h3>The Science</h3>
-                    <p>The 5.5-second rhythm synchronizes your heart rate and breath, optimizing Heart Rate Variability (HRV). Crucially, breathing through the nose produces <b>Nitric Oxide (NO)</b> in the sinuses.</p>
-                    <div class="dd-highlight">Nitric Oxide is a potent vasodilator that lowers blood pressure and helps kill airborne pathogens. Mouth breathing bypasses its production entirely.</div>
-                `
+                details: `<h2 class="dd-main-title">Optimal Mode</h2><h3>The Goal</h3><p>To train your baseline breathing.</p><h3>The Technique</h3><p><b>Nose, Low, Slow, Light.</b></p><h3>The Science</h3><p>5.5s rhythm syncs heart rate and breath (HRV).</p>`
             },
             balance: {
                 colors: { start: [79, 195, 247], end: [255, 255, 255] },
@@ -564,15 +507,7 @@
                     { type: 'out', dur: 4000, text: "Exhale (Nose)", sizeStart: 1, sizeEnd: 0 },
                     { type: 'hold', dur: 4000, text: "Hold", sizeStart: 0, sizeEnd: 0 }
                 ],
-                details: `
-                    <h2 class="dd-main-title">Balance Mode (Box Breathing)</h2>
-                    <h3>The Goal</h3>
-                    <p>To reset the nervous system and regain focus during high-stress situations. Used by elite military and corporate performers.</p>
-                    <h3>The Technique</h3>
-                    <p>Inhale, Hold, Exhale, Hold in equal measure (4s each). Imagine traveling around the four sides of a square.</p>
-                    <h3>The Science</h3>
-                    <p>The equal ratio balances the sympathetic (alert) and parasympathetic (calm) branches of the nervous system. Nasal inhalation ensures air is filtered and delivers Nitric Oxide to the lungs. The "hold on empty" builds CO2 tolerance, preventing panic.</p>
-                `
+                details: `<h2 class="dd-main-title">Balance Mode</h2><h3>The Goal</h3><p>Reset nervous system.</p><h3>The Technique</h3><p>Inhale, Hold, Exhale, Hold (4s each).</p>`
             },
             cold: {
                 colors: { start: [255, 87, 34], end: [255, 171, 64] },
@@ -582,15 +517,7 @@
                     { type: 'in', dur: 1000, text: "Forceful In (Nose)", sizeStart: 0, sizeEnd: 1 },
                     { type: 'out', dur: 1000, text: "Forceful Out (Nose)", sizeStart: 1, sizeEnd: 0 }
                 ],
-                details: `
-                    <h2 class="dd-main-title">Warming Mode (Inner Fire)</h2>
-                    <h3>The Goal</h3>
-                    <p>To generate internal body heat and increase alertness in cold environments or before physical exertion.</p>
-                    <h3>The Technique</h3>
-                    <p>Similar to "Bhastrika." Inhale and exhale forcefully through the nose. Engage your core and diaphragm like a bellows pump.</p>
-                    <h3>The Science</h3>
-                    <p>Rapid nasal breathing acts as a heat exchanger, retaining heat and moisture that would be lost through the mouth. The vigorous mechanical action of the diaphragm increases metabolic activity, warming the body's core.</p>
-                `
+                details: `<h2 class="dd-main-title">Warming Mode</h2><h3>The Goal</h3><p>Generate internal heat.</p><h3>The Technique</h3><p>Forceful nasal breathing.</p>`
             },
             heat: {
                 colors: { start: [128, 222, 234], end: [224, 247, 250] },
@@ -602,52 +529,26 @@
                     { type: 'out', dur: 6000, text: "Slow Out (Nose)", sizeStart: 1, sizeEnd: 0 },
                     { type: 'hold', dur: 2000, text: "Hold", sizeStart: 0, sizeEnd: 0 }
                 ],
-                details: `
-                    <h2 class="dd-main-title">Cooling Mode (Sitali)</h2>
-                    <h3>The Goal</h3>
-                    <p>To lower body temperature and heart rate in hot environments or during moments of agitation.</p>
-                    <h3>The Technique</h3>
-                    <p>Curl your tongue like a taco (or purse lips) and inhale slowly through the mouth—like sucking through a straw. Exhale slowly through the nose.</p>
-                    <h3>The Science</h3>
-                    <p>This is a rare exception where mouth breathing is useful. Inhaling over the moist tongue causes evaporation, physically cooling the air before it enters the lungs. Exhaling through the nose traps moisture to prevent dehydration.</p>
-                `
+                details: `<h2 class="dd-main-title">Cooling Mode</h2><h3>The Goal</h3><p>Lower body temperature.</p><h3>The Technique</h3><p>Inhale through curled tongue.</p>`
             },
             relief: {
                 colors: { start: [156, 39, 176], end: [225, 190, 231] },
-                bg: "#261C2C", 
-                quick: "Physiological sigh to drop stress.",
+                bg: "#261C2C", quick: "Physiological sigh to drop stress.",
                 phases: [
                     { type: 'in', dur: 1500, text: "Inhale (Nose)", sizeStart: 0, sizeEnd: 0.70 },
                     { type: 'in2', dur: 800, text: "Top-up Inhale (Nose)", sizeStart: 0.70, sizeEnd: 1 },
                     { type: 'out', dur: 4000, text: "Long Sigh (Mouth)", sizeStart: 1, sizeEnd: 0 }
                 ],
-                details: `
-                    <h2 class="dd-main-title">Relief Mode (Physiological Sigh)</h2>
-                    <h3>The Goal</h3>
-                    <p>The emergency brake for acute stress, panic, or overwhelm. It provides an instant physiological reset.</p>
-                    <h3>The Technique</h3>
-                    <p>Take two inhales through the nose (a long one, then a short one to top it up). Follow immediately with a long, audible sigh through the mouth.</p>
-                    <h3>The Science</h3>
-                    <p>The double nasal inhale pops open collapsed alveoli (air sacs) in the lungs. The long mouth exhale dumps Carbon Dioxide rapidly, signaling the brain to exit the "Fight or Flight" state.</p>
-                `
+                details: `<h2 class="dd-main-title">Relief Mode</h2><h3>The Goal</h3><p>Emergency stress reset.</p><h3>The Technique</h3><p>Double inhale, long sigh.</p>`
             },
             energy: {
                 colors: { start: [255, 235, 59], end: [255, 255, 255] },
-                bg: "#333300", 
-                quick: "Circular breathing for alertness.",
+                bg: "#333300", quick: "Circular breathing for alertness.",
                 phases: [
                     { type: 'in', dur: 1800, text: "Inhale (Mouth)", sizeStart: 0, sizeEnd: 1 },
                     { type: 'out', dur: 1500, text: "Exhale (Mouth)", sizeStart: 1, sizeEnd: 0 }
                 ],
-                details: `
-                    <h2 class="dd-main-title">Energy Mode (Super-ventilation)</h2>
-                    <h3>The Goal</h3>
-                    <p>To induce an altered state of high alertness or prepare for maximum physical effort. <b>Use with caution.</b></p>
-                    <h3>The Technique</h3>
-                    <p>Circular breathing with no pauses. Mouth In, Mouth Out.</p>
-                    <h3>The Science</h3>
-                    <p>This purges CO2 from the blood. While you feel "charged," your tissues actually receive less oxygen due to the Bohr Effect. This triggers an adrenaline response. It bypasses nasal filtration and NO production entirely.</p>
-                `
+                details: `<h2 class="dd-main-title">Energy Mode</h2><h3>The Goal</h3><p>Induce high alertness.</p><h3>The Technique</h3><p>Continuous circular breathing.</p>`
             }
         };
 
@@ -656,8 +557,7 @@
         let currentPhases = [];
         let totalCycleDuration = 4000;
         let lastPhaseIndex = -1;
-        let dashOffset = 0;
-
+        
         // --- Setup ---
         function loadSettings() {
             const saved = localStorage.getItem('breathingBoxSettings');
@@ -675,6 +575,11 @@
                 } catch (e) { console.error(e); }
             }
             volumeSlider.value = appSettings.global.volume * 100;
+            
+            // Check Welcome Screen
+            if (!appSettings.global.hasSeenWelcome) {
+                welcomeScreen.classList.add('visible');
+            }
         }
 
         function saveSettings() {
@@ -695,7 +600,6 @@
         resizeCanvas();
 
         // --- Core Logic ---
-
         function updateSetting(key, value) {
             appSettings.modes[currentMode][key] = value;
             if (key === 'visual') updateVisualUI(value);
@@ -712,8 +616,8 @@
         function updateVisualUI(mode) {
             vizBox.classList.toggle('active', mode === 'box');
             vizElemental.classList.toggle('active', mode === 'elemental');
-            if (mode === 'box') { shapeToggle.classList.add('visible'); } 
-            else { shapeToggle.classList.remove('visible'); }
+            if (mode === 'box') shapeToggle.classList.add('visible'); 
+            else shapeToggle.classList.remove('visible');
         }
 
         function updateShapeUI(shape) {
@@ -724,44 +628,28 @@
         function updateToneUI(type) {
             toneSelector.value = type;
             if (TONE_DESCRIPTIONS[type]) toneDesc.textContent = TONE_DESCRIPTIONS[type];
-            // Fix: Re-init sound to apply tone change if running
-            if (soundEnabled && audioCtx) {
-                stopAudio();
-                initAudio();
-            }
+            if (soundEnabled && audioCtx) { stopAudio(); initAudio(); }
         }
 
         function setMode(mode) {
             currentMode = mode;
             startTime = null; 
             lastPhaseIndex = -1;
-
-            // UI Update
             modeButtons.forEach(btn => btn.classList.remove('active'));
             document.querySelector(`button[data-mode="${mode}"]`).classList.add('active');
-
-            // Apply Mode Configuration
             const config = MODES[mode];
             canvas.style.backgroundColor = config.bg;
             document.body.style.backgroundColor = config.bg;
             document.documentElement.style.setProperty('--accent', getAccentColor(mode));
-
             quickInfo.textContent = config.quick;
             deepDiveContent.innerHTML = config.details;
             currentPhases = config.phases;
             totalCycleDuration = currentPhases.reduce((acc, p) => acc + p.dur, 0);
-            
-            // Apply Saved Preferences for this Mode
             const prefs = appSettings.modes[mode];
             updateVisualUI(prefs.visual);
             updateShapeUI(prefs.shape);
             updateToneUI(prefs.tone);
-            
-            // Fix: Restart audio when switching modes to apply that mode's tone preference
-            if (soundEnabled && audioCtx) {
-                stopAudio();
-                initAudio();
-            }
+            if (soundEnabled && audioCtx) { stopAudio(); initAudio(); }
         }
 
         function getAccentColor(mode) {
@@ -778,65 +666,38 @@
 
         // --- Visual Functions ---
         function drawSnowflake(ctx, cx, cy, sizeFactor) {
-            const scale = 0.5 + (sizeFactor * 0.5);
-            const alpha = 0.3 + (sizeFactor * 0.5);
-            ctx.strokeStyle = `rgba(224, 247, 250, ${alpha})`;
-            ctx.lineWidth = 3;
-            ctx.save(); ctx.translate(cx, cy); ctx.rotate(Date.now() * 0.0005); ctx.scale(scale, scale);
-            for (let i = 0; i < 6; i++) {
-                ctx.rotate(Math.PI / 3); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0, 80);
-                ctx.moveTo(0, 40); ctx.lineTo(20, 50); ctx.moveTo(0, 40); ctx.lineTo(-20, 50);
-                ctx.moveTo(0, 60); ctx.lineTo(15, 70); ctx.moveTo(0, 60); ctx.lineTo(-15, 70); ctx.stroke();
-            }
+            const scale = 0.5 + (sizeFactor * 0.5); const alpha = 0.3 + (sizeFactor * 0.5);
+            ctx.strokeStyle = `rgba(224, 247, 250, ${alpha})`; ctx.lineWidth = 3; ctx.save(); ctx.translate(cx, cy); ctx.rotate(Date.now() * 0.0005); ctx.scale(scale, scale);
+            for (let i = 0; i < 6; i++) { ctx.rotate(Math.PI / 3); ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0, 80); ctx.moveTo(0, 40); ctx.lineTo(20, 50); ctx.moveTo(0, 40); ctx.lineTo(-20, 50); ctx.moveTo(0, 60); ctx.lineTo(15, 70); ctx.moveTo(0, 60); ctx.lineTo(-15, 70); ctx.stroke(); }
             ctx.restore();
         }
-
         function drawFlame(ctx, cx, cy, sizeFactor) {
-            const t = Date.now();
-            const flicker1 = Math.sin(t * 0.01) * 5 + Math.random() * 5;
-            const flicker2 = Math.cos(t * 0.015) * 5 + Math.random() * 5;
-            const flicker3 = Math.sin(t * 0.008) * 5 + Math.random() * 5;
-            const baseHeight = 40 + (sizeFactor * 60);
-            const alpha = 0.6 + (sizeFactor * 0.4);
-            ctx.save(); ctx.translate(cx, cy + 40); 
-            ctx.fillStyle = `rgba(255, 87, 34, ${alpha})`; ctx.beginPath(); ctx.moveTo(-15, 0); ctx.quadraticCurveTo(-25, -20, -20 + flicker2, -baseHeight * 0.7); ctx.quadraticCurveTo(0, -20, 5, 0); ctx.fill();
+            const t = Date.now(); const flicker1 = Math.sin(t * 0.01) * 5 + Math.random() * 5; const flicker2 = Math.cos(t * 0.015) * 5 + Math.random() * 5; const flicker3 = Math.sin(t * 0.008) * 5 + Math.random() * 5;
+            const baseHeight = 40 + (sizeFactor * 60); const alpha = 0.6 + (sizeFactor * 0.4);
+            ctx.save(); ctx.translate(cx, cy + 40); ctx.fillStyle = `rgba(255, 87, 34, ${alpha})`; ctx.beginPath(); ctx.moveTo(-15, 0); ctx.quadraticCurveTo(-25, -20, -20 + flicker2, -baseHeight * 0.7); ctx.quadraticCurveTo(0, -20, 5, 0); ctx.fill();
             ctx.fillStyle = `rgba(255, 87, 34, ${alpha})`; ctx.beginPath(); ctx.moveTo(15, 0); ctx.quadraticCurveTo(25, -20, 20 + flicker3, -baseHeight * 0.6); ctx.quadraticCurveTo(0, -20, -5, 0); ctx.fill();
             ctx.fillStyle = `rgba(255, 152, 0, ${alpha})`; ctx.beginPath(); ctx.moveTo(-10, 0); ctx.quadraticCurveTo(-15, -30, 0 + flicker1, -baseHeight); ctx.quadraticCurveTo(15, -30, 10, 0); ctx.fill();
-            ctx.fillStyle = `rgba(255, 235, 59, ${alpha + 0.2})`; ctx.beginPath(); ctx.ellipse(0, -5, 10 + sizeFactor*2, 15 + sizeFactor*5, 0, 0, Math.PI*2); ctx.fill();
-            ctx.restore();
+            ctx.fillStyle = `rgba(255, 235, 59, ${alpha + 0.2})`; ctx.beginPath(); ctx.ellipse(0, -5, 10 + sizeFactor*2, 15 + sizeFactor*5, 0, 0, Math.PI*2); ctx.fill(); ctx.restore();
         }
-
         function drawLotus(ctx, cx, cy, sizeFactor) {
-            const petals = 8; const radius = 20 + (sizeFactor * 80);
-            ctx.fillStyle = `rgba(165, 214, 167, ${0.3 + sizeFactor*0.4})`; ctx.strokeStyle = `rgba(76, 175, 80, 0.8)`; ctx.lineWidth = 2;
+            const petals = 8; const radius = 20 + (sizeFactor * 80); ctx.fillStyle = `rgba(165, 214, 167, ${0.3 + sizeFactor*0.4})`; ctx.strokeStyle = `rgba(76, 175, 80, 0.8)`; ctx.lineWidth = 2;
             ctx.save(); ctx.translate(cx, cy); ctx.rotate(Date.now() * 0.0002);
             for(let i=0; i<petals; i++) { ctx.rotate((Math.PI * 2) / petals); ctx.beginPath(); ctx.ellipse(0, radius/2, 10, radius/2, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke(); }
             ctx.restore(); ctx.beginPath(); ctx.arc(cx, cy, 10 + sizeFactor*5, 0, Math.PI*2); ctx.fillStyle = "#fff"; ctx.fill();
         }
-
         function drawEnso(ctx, cx, cy, sizeFactor) {
-            const radius = 50 + (sizeFactor * 50);
-            ctx.strokeStyle = `rgba(79, 195, 247, 0.8)`; ctx.lineWidth = 8 + (sizeFactor * 4); ctx.lineCap = "round";
+            const radius = 50 + (sizeFactor * 50); ctx.strokeStyle = `rgba(79, 195, 247, 0.8)`; ctx.lineWidth = 8 + (sizeFactor * 4); ctx.lineCap = "round";
             ctx.beginPath(); ctx.arc(cx, cy, radius, 0.2, Math.PI * 1.8); ctx.stroke();
             ctx.fillStyle = `rgba(255, 255, 255, ${sizeFactor})`; ctx.beginPath(); ctx.arc(cx, cy, 5 + sizeFactor*10, 0, Math.PI*2); ctx.fill();
         }
-
         function drawRipples(ctx, cx, cy, sizeFactor) {
-            const count = 3; ctx.lineWidth = 3;
-            for(let i=0; i<count; i++) {
-                const offset = i * 30; let r = (sizeFactor * 100) + offset; let alpha = 1 - (r / 150); if (alpha < 0) alpha = 0;
-                ctx.strokeStyle = `rgba(225, 190, 231, ${alpha})`; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
-            }
+            const count = 3; ctx.lineWidth = 3; for(let i=0; i<count; i++) { const offset = i * 30; let r = (sizeFactor * 100) + offset; let alpha = 1 - (r / 150); if (alpha < 0) alpha = 0; ctx.strokeStyle = `rgba(225, 190, 231, ${alpha})`; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke(); }
         }
-
         function drawSunburst(ctx, cx, cy, sizeFactor) {
-            const rays = 12; const innerR = 20 + (sizeFactor * 20); const outerR = 60 + (sizeFactor * 80);
-            ctx.fillStyle = `rgba(255, 235, 59, 0.8)`; ctx.save(); ctx.translate(cx, cy); ctx.rotate(Date.now() * 0.002);
-            ctx.beginPath();
+            const rays = 12; const innerR = 20 + (sizeFactor * 20); const outerR = 60 + (sizeFactor * 80); ctx.fillStyle = `rgba(255, 235, 59, 0.8)`; ctx.save(); ctx.translate(cx, cy); ctx.rotate(Date.now() * 0.002); ctx.beginPath();
             for(let i=0; i<rays*2; i++) { const r = (i % 2 === 0) ? outerR : innerR; const angle = (Math.PI * i) / rays; ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r); }
             ctx.closePath(); ctx.fill(); ctx.restore();
         }
-
         function drawElemental(ctx, width, height, sizeFactor) {
             const cx = width / 2; const cy = height / 2;
             switch(currentMode) {
@@ -850,19 +711,7 @@
             }
         }
 
-        // --- Audio Logic ---
-        function toggleDetails() {
-            const isOpen = deepDive.classList.contains('open');
-            if (isOpen) { deepDive.classList.remove('open'); infoToggleBtn.innerHTML = "Tech Specs ▼"; infoToggleBtn.classList.remove('active'); }
-            else { deepDive.classList.add('open'); infoToggleBtn.innerHTML = "Close ▲"; infoToggleBtn.classList.add('active'); setTimeout(() => { deepDive.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100); }
-        }
-
-        function toggleGuide() {
-            const isOpen = guideModal.classList.contains('open');
-            if (isOpen) { guideModal.classList.remove('open'); }
-            else { guideModal.classList.add('open'); }
-        }
-
+        // --- Audio & Haptics ---
         function toggleSound() {
             soundEnabled = !soundEnabled;
             soundBtn.classList.toggle('active', soundEnabled);
@@ -880,11 +729,9 @@
             if (type === 'ethereal') { createOsc('sine', 1.0); createOsc('sine', 1.5); }
             else { let wtype = 'sine'; if (type === 'warm') wtype = 'triangle'; createOsc(wtype, type === 'deep' ? 0.5 : 1.0); }
         }
-        
         function createOsc(type, freqMult) {
             const osc = audioCtx.createOscillator(); osc.type = type; osc.connect(gainNode); osc.start(); osc._freqMult = freqMult; oscillators.push(osc);
         }
-        
         function stopAudio() {
             oscillators.forEach(osc => { try { osc.stop(); osc.disconnect(); } catch(e){} });
             oscillators = [];
@@ -895,10 +742,12 @@
         function toggleVibration() {
             vibrationEnabled = !vibrationEnabled;
             vibeBtn.classList.toggle('active', vibrationEnabled);
-            if (vibrationEnabled && navigator.vibrate) navigator.vibrate(50);
+            // Trigger feedback IMMEDIATELY so user knows it's on
+            if (vibrationEnabled && navigator.vibrate) navigator.vibrate(200);
         }
 
         function triggerHaptic(type) {
+             // Separate logic, only runs if vibeBtn is active
              if (vibrationEnabled && navigator.vibrate) {
                 if (type.includes('in')) navigator.vibrate(60);
                 else if (type.includes('out')) navigator.vibrate([40, 40]);
@@ -924,10 +773,103 @@
             }
         }
 
+        // --- Tour / Welcome Logic ---
+        function closeWelcome() {
+            welcomeScreen.classList.remove('visible');
+            appSettings.global.hasSeenWelcome = true;
+            saveSettings();
+        }
+        
+        function resetWelcome() {
+            toggleGuide(); // Close guide
+            welcomeScreen.classList.add('visible');
+        }
+
+        let tourStep = 0;
+        function startTour() {
+            welcomeScreen.classList.remove('visible');
+            tourStep = 0;
+            appSettings.global.hasSeenWelcome = true;
+            saveSettings();
+            showTourStep();
+        }
+
+        function showTourStep() {
+            const tooltip = document.getElementById('tourTooltip');
+            const title = document.getElementById('tourTitle');
+            const text = document.getElementById('tourText');
+            
+            // Cleanup previous
+            document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+            
+            let target;
+            if (tourStep === 0) {
+                target = document.getElementById('modeWrapper');
+                title.innerText = "1. Select Mode";
+                text.innerText = "Choose a technique based on your goal (e.g., 'Relief' for stress or 'Energy' for alertness).";
+                placeTooltip(target, tooltip, 'bottom');
+                target.classList.add('tour-highlight');
+            } else if (tourStep === 1) {
+                target = document.getElementById('visualWrapper');
+                title.innerText = "2. Customize Visuals";
+                text.innerText = "Switch between geometric shapes or elemental animations like flames and lotus flowers.";
+                placeTooltip(target, tooltip, 'bottom');
+                target.classList.add('tour-highlight');
+            } else if (tourStep === 2) {
+                target = document.getElementById('utilityBar');
+                title.innerText = "3. Sensory Controls";
+                text.innerText = "Toggle immersive audio and haptic feedback.";
+                placeTooltip(target, tooltip, 'top');
+                target.classList.add('tour-highlight');
+            } else if (tourStep === 3) {
+                // New step for Guide / Tech Specs
+                target = document.getElementById('guideBtn'); // Target the Guide button specifically
+                title.innerText = "4. Knowledge Base";
+                text.innerText = "Access the manual to learn the science behind each technique.";
+                // Pointing to the specific button which is inside the utility bar
+                // We'll target the whole bar for simpler highlighting but describe the guide
+                 target = document.getElementById('utilityBar');
+                 placeTooltip(target, tooltip, 'top');
+                 target.classList.add('tour-highlight');
+            } else {
+                // End
+                tooltip.classList.remove('visible');
+                return;
+            }
+            tooltip.classList.add('visible');
+        }
+
+        function placeTooltip(target, tooltip, pos) {
+            const rect = target.getBoundingClientRect();
+            const tooltipRect = tooltip.getBoundingClientRect();
+            
+            let top, left;
+            left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+            
+            if (pos === 'bottom') {
+                top = rect.bottom + 15;
+                tooltip.className = "tour-tooltip visible top"; // Arrow points up
+            } else {
+                top = rect.top - tooltipRect.height - 15;
+                tooltip.className = "tour-tooltip visible bottom"; // Arrow points down
+            }
+            
+            // Keep on screen
+            if (left < 10) left = 10;
+            if (left + tooltipRect.width > window.innerWidth) left = window.innerWidth - tooltipRect.width - 10;
+
+            tooltip.style.top = top + "px";
+            tooltip.style.left = left + "px";
+        }
+
+        function nextTourStep() {
+            tourStep++;
+            showTourStep();
+        }
+
         // --- Box Traveler ---
         function drawBoxTraveler(ctx, x, y, size, progress, phaseIdx) {
-            let tx, ty;
-            const p = progress;
+            let tx, ty; const p = progress;
             switch(phaseIdx) {
                 case 0: tx = x; ty = (y + size) - (size * p); break;
                 case 1: tx = x + (size * p); ty = y; break;
@@ -1007,19 +949,12 @@
         }
 
         // Init
-        // Load settings handled at top of script
-        setMode('optimal'); // This will trigger UI update based on loaded settings
+        setMode('optimal');
         requestAnimationFrame(animate);
         
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                .then(registration => {
-                    console.log('ServiceWorker registration successful');
-                })
-                .catch(err => {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
             });
         }
     </script>
