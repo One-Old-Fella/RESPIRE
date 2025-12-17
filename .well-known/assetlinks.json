@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.one_old_fella.twa",
+        "sha256_cert_fingerprints": ["A9:0E:CB:45:E9:74:0D:32:E1:61:28:A9:36:A0:FA:75:33:0F:C7:A2:26:84:16:7A:D1:5F:C6:B5:36:1C:82:BC"]
+      }
+    }]
