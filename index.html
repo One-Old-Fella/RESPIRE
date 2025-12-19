@@ -247,10 +247,12 @@
         .deep-dive { width: 100%; max-width: 500px; background: rgba(0,0,0,0.25); border-radius: 15px; margin-top: 15px; overflow: hidden; max-height: 0; transition: max-height 0.4s ease, opacity 0.4s ease; opacity: 0; border: 1px solid rgba(255,255,255,0.05); }
         .deep-dive.open { max-height: 1200px; opacity: 1; margin-bottom: 20px; }
         .deep-dive-content { padding: 20px; color: #d9e2ec; font-size: 0.95rem; line-height: 1.6; }
-        .dd-main-title { font-size: 1.2rem; font-weight: 700; color: #fff; margin: 0 0 15px 0; display: block; border-bottom: 2px solid var(--accent); padding-bottom: 5px; }
+        
+        /* Updated Deep Dive Styling from Screenshot */
+        .dd-main-title { font-size: 1.2rem; font-weight: 700; color: #fff; margin: 0 0 10px 0; display: block; border-bottom: 2px solid var(--accent); padding-bottom: 5px; }
         .deep-dive-content h3 { font-weight: 700; color: var(--accent); margin: 15px 0 5px 0; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
         .deep-dive-content p { margin: 0 0 10px 0; }
-        .dd-highlight { background: rgba(72, 207, 173, 0.1); border-left: 3px solid var(--accent); padding: 5px 10px; margin: 10px 0; font-style: italic; }
+        .dd-highlight { background: rgba(72, 207, 173, 0.1); border-left: 3px solid var(--accent); padding: 10px; margin: 15px 0; font-style: italic; font-size: 0.9rem; color: #e0f2f1; }
 
         /* Guide Modal */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 42, 67, 0.95); z-index: 3000; display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 20px; box-sizing: border-box; }
@@ -259,9 +261,14 @@
         .modal-close { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold; }
         .guide-title { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
         .guide-h2 { font-size: 1.2rem; color: #48cfad; margin-bottom: 15px; font-weight: 600; }
+        .guide-sub { font-size: 0.85rem; color: #829ab1; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600; }
         .guide-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 20px; }
         .guide-table th { text-align: left; padding: 8px; border-bottom: 2px solid #48cfad; color: #48cfad; }
         .guide-table td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #d9e2ec; vertical-align: top; }
+        
+        .guide-list { padding-left: 20px; margin: 0; }
+        .guide-list li { margin-bottom: 12px; color: #d9e2ec; line-height: 1.5; }
+        .guide-list li b { color: #fff; }
 
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -389,24 +396,44 @@
         <div class="modal-content">
             <button class="modal-close" onclick="toggleGuide()">✕</button>
             <div class="guide-title">The System Manual</div>
+            
             <div class="guide-section">
                 <div class="guide-h2">1. Technique Cheatsheet</div>
+                <p style="color:#bcccdc; font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">
+                    Think of your breath as a remote control for your nervous system. Choose the right mode for your current state.
+                </p>
                 <table class="guide-table">
                     <thead><tr><th width="25%">Mode</th><th width="45%">Goal</th><th>Best For</th></tr></thead>
                     <tbody>
                         <tr><td><strong>Optimal</strong></td><td>Synchronize</td><td>Daily Baseline, Health</td></tr>
-                        <tr><td><strong>Balance</strong></td><td>Regulate</td><td>Stress, Focus</td></tr>
+                        <tr><td><strong>Balance</strong></td><td>Regulate</td><td>Stress, Focus, Transitions</td></tr>
                         <tr><td><strong>Relief</strong></td><td>Reset</td><td>Panic, Overwhelm</td></tr>
                         <tr><td><strong>Warming</strong></td><td>Heat</td><td>Cold Environments</td></tr>
                         <tr><td><strong>Cooling</strong></td><td>Cool</td><td>Overheating, Anger</td></tr>
-                        <tr><td><strong>Energy</strong></td><td>Excitation</td><td>Waking Up</td></tr>
+                        <tr><td><strong>Energy</strong></td><td>Excitation</td><td>Waking Up (Short burst)</td></tr>
                     </tbody>
                 </table>
             </div>
+
             <div class="guide-section">
                 <div class="guide-h2">2. Why Nose Breathing?</div>
-                <p style="color:#d9e2ec; line-height:1.6;">Nose breathing produces <strong>Nitric Oxide (NO)</strong>, a vasodilator that increases oxygen uptake by 10-18%.</p>
+                <p class="guide-sub">THE NITRIC OXIDE ADVANTAGE</p>
+                <p style="color:#d9e2ec; line-height:1.6;">
+                    For a human "system" to operate within warranty, nose breathing is the standard operating procedure. Your sinuses produce a molecule called <strong>Nitric Oxide (NO)</strong>. This molecule is a vasodilator—it widens blood vessels, lowers blood pressure, and increases oxygen uptake in the lungs by 10-18%. Mouth breathing bypasses this production entirely.
+                </p>
             </div>
+
+            <div class="guide-section" style="margin-top:25px;">
+                <div class="guide-h2">3. Risks of Mouth Breathing</div>
+                <p style="color:#bcccdc; font-size: 0.95rem; margin-bottom: 15px;">Chronic mouth breathing is like running an engine without an air filter.</p>
+                <ul class="guide-list">
+                    <li><b>Structural Deformation:</b> The "Long Face." In children, it leads to narrowed jaws and crowded teeth. In adults, it causes forward head posture.</li>
+                    <li><b>Anxiety Loop:</b> Mouth breathing dumps CO2 too quickly. Low CO2 levels trigger the fear center (amygdala), keeping you in a low-level state of "Fight or Flight."</li>
+                    <li><b>Brain Fog:</b> Due to the Bohr Effect (which requires CO2 to release Oxygen), mouth breathers often have poorer oxygen delivery to the brain.</li>
+                    <li><b>Sleep Issues:</b> The primary cause of snoring and sleep apnea is the collapse of soft tissue, which is exacerbated by an open mouth during sleep.</li>
+                </ul>
+            </div>
+
             <div style="text-align:center; margin-top:30px; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;">
                 <button class="mode-btn active" style="padding:10px 30px;" onclick="toggleGuide()">Close Manual</button>
                 <div style="margin-top:15px;"><button class="link-btn" onclick="resetWelcome()">Replay Welcome Tour</button></div>
@@ -423,10 +450,7 @@
         const modeButtons = document.querySelectorAll('.mode-btn');
         const deepDive = document.getElementById('deepDive');
         const deepDiveContent = document.getElementById('deepDiveContent');
-        
-        // Corrected variable to match HTML ID
         const specsBtn = document.getElementById('specsBtn'); 
-        
         const soundBtn = document.getElementById('soundBtn');
         const vibeBtn = document.getElementById('vibeBtn');
         const vizBox = document.getElementById('vizBox');
@@ -441,7 +465,6 @@
         const guideModal = document.getElementById('guideModal');
         const welcomeScreen = document.getElementById('welcomeScreen');
         const tourTooltip = document.getElementById('tourTooltip');
-        // New elements for tour targeting
         const visualWrapper = document.getElementById('visualWrapper');
         const modeWrapper = document.getElementById('modeWrapper');
         const utilityBar = document.getElementById('utilityBar');
@@ -449,7 +472,7 @@
 
 
         // --- Configuration & Persistence ---
-        const APP_VERSION = 3; // Version bump
+        const APP_VERSION = 3; 
         const DEFAULT_SETTINGS = {
             global: { volume: 0.7, welcomeVersion: 0 }, 
             modes: {
@@ -479,6 +502,7 @@
         };
 
         // --- Data ---
+        // RESTORED ALL MODE DETAILS BASED ON SCREENSHOTS
         const MODES = {
             optimal: {
                 colors: { start: [76, 175, 80], end: [200, 230, 201] },
@@ -488,7 +512,18 @@
                     { type: 'in', dur: 5500, text: "Light Inhale (Nose)", sizeStart: 0, sizeEnd: 0.8 },
                     { type: 'out', dur: 5500, text: "Slow Exhale (Nose)", sizeStart: 0.8, sizeEnd: 0 }
                 ],
-                details: `<h2 class="dd-main-title">Optimal Mode</h2><h3>The Goal</h3><p>To train your baseline breathing.</p><h3>The Technique</h3><p><b>Nose, Low, Slow, Light.</b></p><h3>The Science</h3><p>5.5s rhythm syncs heart rate and breath (HRV).</p>`
+                details: `
+                    <h2 class="dd-main-title">Optimal Mode (Resonance)</h2>
+                    <h3>The Goal</h3>
+                    <p>To train your baseline breathing for normal conditions, maximizing overall health and autonomic nervous system balance.</p>
+                    <h3>The Technique</h3>
+                    <p><b>Nose, Low, Slow, Light.</b> Breathe gently through the nose into the belly (diaphragm). Do not fill the lungs completely; keep it quiet and subtle.</p>
+                    <h3>The Science</h3>
+                    <p>The 5.5-second rhythm synchronizes your heart rate and breath, optimizing Heart Rate Variability (HRV). Crucially, breathing through the nose produces <b>Nitric Oxide (NO)</b> in the sinuses.</p>
+                    <div class="dd-highlight">
+                        Nitric Oxide is a potent vasodilator that lowers blood pressure and helps kill airborne pathogens. Mouth breathing bypasses its production entirely.
+                    </div>
+                `
             },
             balance: {
                 colors: { start: [79, 195, 247], end: [255, 255, 255] },
@@ -500,7 +535,15 @@
                     { type: 'out', dur: 4000, text: "Exhale (Nose)", sizeStart: 1, sizeEnd: 0 },
                     { type: 'hold', dur: 4000, text: "Hold", sizeStart: 0, sizeEnd: 0 }
                 ],
-                details: `<h2 class="dd-main-title">Balance Mode</h2><h3>The Goal</h3><p>Reset nervous system.</p><h3>The Technique</h3><p>Inhale, Hold, Exhale, Hold (4s each).</p>`
+                details: `
+                    <h2 class="dd-main-title">Balance Mode (Box Breathing)</h2>
+                    <h3>The Goal</h3>
+                    <p>To reset the nervous system and regain focus during high-stress situations. Used by elite military and corporate performers.</p>
+                    <h3>The Technique</h3>
+                    <p>Inhale, Hold, Exhale, Hold in equal measure (4s each). Imagine traveling around the four sides of a square.</p>
+                    <h3>The Science</h3>
+                    <p>The equal ratio balances the sympathetic (alert) and parasympathetic (calm) branches of the nervous system. Nasal inhalation ensures air is filtered and delivers Nitric Oxide to the lungs. The "hold on empty" builds CO2 tolerance, preventing panic.</p>
+                `
             },
             cold: {
                 colors: { start: [255, 87, 34], end: [255, 171, 64] },
@@ -510,7 +553,15 @@
                     { type: 'in', dur: 1000, text: "Forceful In (Nose)", sizeStart: 0, sizeEnd: 1 },
                     { type: 'out', dur: 1000, text: "Forceful Out (Nose)", sizeStart: 1, sizeEnd: 0 }
                 ],
-                details: `<h2 class="dd-main-title">Warming Mode</h2><h3>The Goal</h3><p>Generate internal heat.</p><h3>The Technique</h3><p>Forceful nasal breathing.</p>`
+                details: `
+                    <h2 class="dd-main-title">Warming Mode (Inner Fire)</h2>
+                    <h3>The Goal</h3>
+                    <p>To generate internal body heat and increase alertness in cold environments or before physical exertion.</p>
+                    <h3>The Technique</h3>
+                    <p>Similar to "Bhastrika." Inhale and exhale forcefully through the nose. Engage your core and diaphragm like a bellows pump.</p>
+                    <h3>The Science</h3>
+                    <p>Rapid nasal breathing acts as a heat exchanger, retaining heat and moisture that would be lost through the mouth. The vigorous mechanical action of the diaphragm increases metabolic activity, warming the body's core.</p>
+                `
             },
             heat: {
                 colors: { start: [128, 222, 234], end: [224, 247, 250] },
@@ -522,7 +573,15 @@
                     { type: 'out', dur: 6000, text: "Slow Out (Nose)", sizeStart: 1, sizeEnd: 0 },
                     { type: 'hold', dur: 2000, text: "Hold", sizeStart: 0, sizeEnd: 0 }
                 ],
-                details: `<h2 class="dd-main-title">Cooling Mode</h2><h3>The Goal</h3><p>Lower body temperature.</p><h3>The Technique</h3><p>Inhale through curled tongue.</p>`
+                details: `
+                    <h2 class="dd-main-title">Cooling Mode (Sitali)</h2>
+                    <h3>The Goal</h3>
+                    <p>To lower body temperature and heart rate in hot environments or during moments of agitation.</p>
+                    <h3>The Technique</h3>
+                    <p>Curl your tongue like a taco (or purse lips) and inhale slowly through the mouth—like sucking through a straw. Exhale slowly through the nose.</p>
+                    <h3>The Science</h3>
+                    <p>This is a rare exception where mouth breathing is useful. Inhaling over the moist tongue causes evaporation, physically cooling the air before it enters the lungs. Exhaling through the nose traps moisture to prevent dehydration.</p>
+                `
             },
             relief: {
                 colors: { start: [156, 39, 176], end: [225, 190, 231] },
@@ -532,7 +591,15 @@
                     { type: 'in2', dur: 800, text: "Top-up Inhale (Nose)", sizeStart: 0.70, sizeEnd: 1 },
                     { type: 'out', dur: 4000, text: "Long Sigh (Mouth)", sizeStart: 1, sizeEnd: 0 }
                 ],
-                details: `<h2 class="dd-main-title">Relief Mode</h2><h3>The Goal</h3><p>Emergency stress reset.</p><h3>The Technique</h3><p>Double inhale, long sigh.</p>`
+                details: `
+                    <h2 class="dd-main-title">Relief Mode (Physiological Sigh)</h2>
+                    <h3>The Goal</h3>
+                    <p>The emergency brake for acute stress, panic, or overwhelm. It provides an instant physiological reset.</p>
+                    <h3>The Technique</h3>
+                    <p>Take two inhales through the nose (a long one, then a short one to top it up). Follow immediately with a long, audible sigh through the mouth.</p>
+                    <h3>The Science</h3>
+                    <p>The double nasal inhale pops open collapsed alveoli (air sacs) in the lungs. The long mouth exhale dumps Carbon Dioxide rapidly, signaling the brain to exit the "Fight or Flight" state.</p>
+                `
             },
             energy: {
                 colors: { start: [255, 235, 59], end: [255, 255, 255] },
@@ -541,7 +608,15 @@
                     { type: 'in', dur: 1800, text: "Inhale (Mouth)", sizeStart: 0, sizeEnd: 1 },
                     { type: 'out', dur: 1500, text: "Exhale (Mouth)", sizeStart: 1, sizeEnd: 0 }
                 ],
-                details: `<h2 class="dd-main-title">Energy Mode</h2><h3>The Goal</h3><p>Induce high alertness.</p><h3>The Technique</h3><p>Continuous circular breathing.</p>`
+                details: `
+                    <h2 class="dd-main-title">Energy Mode (Super-ventilation)</h2>
+                    <h3>The Goal</h3>
+                    <p>To induce an altered state of high alertness or prepare for maximum physical effort. <b>Use with caution.</b></p>
+                    <h3>The Technique</h3>
+                    <p>Circular breathing with no pauses. Mouth In, Mouth Out.</p>
+                    <h3>The Science</h3>
+                    <p>This purges CO2 from the blood. While you feel "charged," your tissues actually receive less oxygen due to the Bohr Effect. This triggers an adrenaline response. It bypasses nasal filtration and NO production entirely.</p>
+                `
             }
         };
 
@@ -558,7 +633,6 @@
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
-                    // Merge global/mode settings safely
                     if(parsed.global) appSettings.global = {...appSettings.global, ...parsed.global};
                     if(parsed.modes) {
                         for (const m in parsed.modes) {
@@ -570,9 +644,6 @@
                 } catch (e) { console.error(e); }
             }
             volumeSlider.value = appSettings.global.volume * 100;
-            
-            // Check Welcome Screen with Version Control
-            // If stored version is less than current APP_VERSION, show welcome
             if (appSettings.global.welcomeVersion < APP_VERSION) {
                 welcomeScreen.classList.add('visible');
             }
@@ -660,7 +731,7 @@
             }
         }
 
-        // --- Interaction Functions (Missing in previous version) ---
+        // --- Interaction Functions ---
         function toggleGuide() {
             guideModal.classList.toggle('open');
         }
@@ -748,12 +819,10 @@
         function toggleVibration() {
             vibrationEnabled = !vibrationEnabled;
             vibeBtn.classList.toggle('active', vibrationEnabled);
-            // Trigger feedback IMMEDIATELY so user knows it's on
             if (vibrationEnabled && navigator.vibrate) navigator.vibrate(200);
         }
 
         function triggerHaptic(type) {
-             // Separate logic, only runs if vibeBtn is active
              if (vibrationEnabled && navigator.vibrate) {
                 if (type.includes('in')) navigator.vibrate(60);
                 else if (type.includes('out')) navigator.vibrate([40, 40]);
@@ -782,7 +851,7 @@
         // --- Tour / Welcome Logic ---
         function closeWelcome() {
             welcomeScreen.classList.remove('visible');
-            appSettings.global.welcomeVersion = APP_VERSION; // Save current version
+            appSettings.global.welcomeVersion = APP_VERSION; 
             saveSettings();
         }
         
@@ -795,7 +864,7 @@
         function startTour() {
             welcomeScreen.classList.remove('visible');
             tourStep = 0;
-            appSettings.global.welcomeVersion = APP_VERSION; // Save current version
+            appSettings.global.welcomeVersion = APP_VERSION; 
             saveSettings();
             showTourStep();
         }
@@ -805,7 +874,6 @@
             const title = document.getElementById('tourTitle');
             const text = document.getElementById('tourText');
             
-            // Cleanup previous
             document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
             
             let target;
@@ -828,25 +896,19 @@
                 placeTooltip(target, tooltip, 'top');
                 target.classList.add('tour-highlight');
             } else if (tourStep === 3) {
-                // New step for Guide
                 target = document.getElementById('guideBtn'); 
                 title.innerText = "4. Knowledge Base";
                 text.innerText = "Access the guide to learn the science behind each technique.";
-                 // Highlight the button specifically
                  placeTooltip(target, tooltip, 'top');
                  target.classList.add('tour-highlight');
             } else if (tourStep === 4) {
-                 // New step for Tech Specs
                 target = document.getElementById('specsBtn'); 
                 title.innerText = "5. Tech Specs";
                 text.innerText = "View detailed breath timing and patterns.";
                  placeTooltip(target, tooltip, 'top');
                  target.classList.add('tour-highlight');
             } else {
-                // End of Tour - Automatically Open Guide
                 tooltip.classList.remove('visible');
-                
-                // Check if guide is already open to prevent double-toggling
                 const guideModal = document.getElementById('guideModal');
                 if (!guideModal.classList.contains('open')) {
                     toggleGuide();
@@ -862,45 +924,29 @@
             
             let top, left;
             left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
-            
-            // Smart vertical positioning logic to prevent cutoff
             const spaceBelow = window.innerHeight - rect.bottom;
             const spaceAbove = rect.top;
-            
-            // Tooltip height + button area padding (approx 150px safe zone)
             const requiredSpace = tooltipRect.height > 50 ? tooltipRect.height + 20 : 200; 
-
-            // Logic: 
-            // If pos is bottom, but space below is small (< 150px) AND space above is large (> 150px), flip to top.
-            // If pos is top, but space above is small AND space below is large, flip to bottom.
-            
             if (pos === 'bottom') {
-                if (spaceBelow < requiredSpace && spaceAbove > requiredSpace) {
-                    pos = 'top';
-                }
+                if (spaceBelow < requiredSpace && spaceAbove > requiredSpace) pos = 'top';
             } else if (pos === 'top') {
-                if (spaceAbove < requiredSpace && spaceBelow > requiredSpace) {
-                    pos = 'bottom';
-                }
+                if (spaceAbove < requiredSpace && spaceBelow > requiredSpace) pos = 'bottom';
             }
 
             if (pos === 'bottom') {
                 top = rect.bottom + 15;
-                tooltip.className = "tour-tooltip visible top"; // Arrow points up
+                tooltip.className = "tour-tooltip visible top"; 
             } else {
                 top = rect.top - tooltipRect.height - 15;
-                tooltip.className = "tour-tooltip visible bottom"; // Arrow points down
+                tooltip.className = "tour-tooltip visible bottom"; 
             }
             
-            // Keep on screen horizontal
             if (left < 10) left = 10;
             if (left + tooltipRect.width > window.innerWidth) left = window.innerWidth - tooltipRect.width - 10;
 
             tooltip.style.top = top + "px";
             tooltip.style.left = left + "px";
-            tooltip.className = "tour-tooltip visible"; // No arrow class needed
-            
-            // Scroll to ensure visibility if completely off
+            tooltip.className = "tour-tooltip visible"; 
              target.scrollIntoView({behavior: "smooth", block: "center"});
         }
 
@@ -990,7 +1036,6 @@
             ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y); ctx.quadraticCurveTo(x + width, y, x + width, y + radius); ctx.lineTo(x + width, y + height - radius); ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); ctx.lineTo(x + radius, y + height); ctx.quadraticCurveTo(x, y + height, x, y + height - radius); ctx.lineTo(x, y + radius); ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath();
         }
 
-        // Init
         setMode('optimal');
         requestAnimationFrame(animate);
         
