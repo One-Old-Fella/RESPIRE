@@ -1,7 +1,9 @@
 {
   "name": "RESPIRE: System Regulation",
   "short_name": "RESPIRE",
+  "lang": "en",
   "start_url": "./index.html",
+  "scope": "./",
   "id": "/RESPIRE/",
   "display": "standalone",
   "background_color": "#102a43",
