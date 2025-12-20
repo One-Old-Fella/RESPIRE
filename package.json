@@ -1,11 +1,9 @@
 {
   "name": "respire-app",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "RESPIRE: System Regulation PWA",
-  "main": "main.js",
   "scripts": {
-    "start": "npx http-server . -p 8080",
-    "electron:start": "electron ."
+    "start": "npx http-server . -p 8080"
   },
   "keywords": [
     "breathing",
@@ -13,11 +11,10 @@
     "health",
     "focus"
   ],
-  "author": "System Admin",
+  "author": "William Gross",
   "license": "ISC",
   "dependencies": {},
   "devDependencies": {
-    "http-server": "^14.1.1",
-    "electron": "^26.0.0"
+    "http-server": "^14.1.1"
   }
 }
