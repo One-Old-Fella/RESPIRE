@@ -44,7 +44,9 @@
             max-width: 500px;
             padding: 20px;
             box-sizing: border-box;
-            height: 100vh;
+            /* FIX: Changed from height: 100vh to min-height/auto to allow scrolling */
+            min-height: 100vh;
+            height: auto;
             justify-content: space-between;
         }
 
@@ -247,15 +249,13 @@
         .tour-tooltip.visible { opacity: 1; pointer-events: all; }
 
         /* --- Deep Dive / Manual --- */
-        .deep-dive { width: 100%; max-width: 500px; background: rgba(0,0,0,0.25); border-radius: 15px; margin-top: 15px; overflow: hidden; max-height: 0; transition: max-height 0.4s ease, opacity 0.4s ease; opacity: 0; border: 1px solid rgba(255,255,255,0.05); }
+        .deep-dive { width: 100%; max-width: 500px; background: rgba(16, 42, 67, 0.95); border-radius: 15px; margin-top: 15px; overflow: hidden; max-height: 0; transition: max-height 0.4s ease, opacity 0.4s ease; opacity: 0; border: 1px solid rgba(255,255,255,0.1); }
         .deep-dive.open { max-height: 1200px; opacity: 1; margin-bottom: 20px; }
-        .deep-dive-content { padding: 20px; color: #d9e2ec; font-size: 0.95rem; line-height: 1.6; }
-        
-        /* Updated Deep Dive Styling from Screenshot */
+        .deep-dive-content { padding: 20px; color: #f0f4f8; font-size: 1rem; line-height: 1.6; }
         .dd-main-title { font-size: 1.2rem; font-weight: 700; color: #fff; margin: 0 0 10px 0; display: block; border-bottom: 2px solid var(--accent); padding-bottom: 5px; }
-        .deep-dive-content h3 { font-weight: 700; color: var(--accent); margin: 15px 0 5px 0; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+        .deep-dive-content h3 { font-weight: 700; color: var(--accent); margin: 15px 0 5px 0; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; }
         .deep-dive-content p { margin: 0 0 10px 0; }
-        .dd-highlight { background: rgba(72, 207, 173, 0.1); border-left: 3px solid var(--accent); padding: 10px; margin: 15px 0; font-style: italic; font-size: 0.9rem; color: #e0f2f1; }
+        .dd-highlight { background: rgba(72, 207, 173, 0.1); border-left: 3px solid var(--accent); padding: 10px; margin: 15px 0; font-style: italic; font-size: 0.95rem; color: #e0f2f1; }
 
         /* Guide Modal */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(16, 42, 67, 0.95); z-index: 3000; display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 20px; box-sizing: border-box; }
@@ -264,20 +264,16 @@
         .modal-close { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold; }
         .guide-title { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
         .guide-h2 { font-size: 1.2rem; color: #48cfad; margin-bottom: 15px; font-weight: 600; }
-        .guide-sub { font-size: 0.85rem; color: #829ab1; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600; }
         .guide-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 20px; }
         .guide-table th { text-align: left; padding: 8px; border-bottom: 2px solid #48cfad; color: #48cfad; }
         .guide-table td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); color: #d9e2ec; vertical-align: top; }
-        
-        .guide-list { padding-left: 20px; margin: 0; }
-        .guide-list li { margin-bottom: 12px; color: #d9e2ec; line-height: 1.5; }
-        .guide-list li b { color: #fff; }
 
         @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
+    <!-- Welcome Overlay -->
     <div id="welcomeScreen" class="overlay">
         <div class="pulse-bg"></div>
         <div class="welcome-title">RESPIRE</div>
@@ -311,6 +307,7 @@
         <button class="link-btn" onclick="closeWelcome()">Skip to App</button>
     </div>
 
+    <!-- Tour Tooltips -->
     <div id="tourTooltip" class="tour-tooltip">
         <h4 style="margin:0 0 5px 0; font-size:1.1rem;" id="tourTitle">Title</h4>
         <p style="margin:0 0 15px 0; font-size:0.95rem; color:#486581; line-height:1.4;" id="tourText">Text</p>
@@ -321,8 +318,10 @@
 
     <div class="container">
         
+        <!-- Header -->
         <div class="app-header">RESPIRE</div>
 
+        <!-- Visual Toggle -->
         <div class="visual-toggle-wrapper" id="visualWrapper">
             <div class="visual-toggle-container">
                 <div class="visual-option active" id="vizBox" onclick="updateSetting('visual', 'box')">Geometry</div>
@@ -379,10 +378,12 @@
                     <button id="vibeBtn" class="icon-btn" onclick="toggleVibration()">
                         <span>📳</span>
                     </button>
+                    <!-- Distinct ID for Guide Button to target in tour -->
                     <button id="guideBtn" class="icon-btn" onclick="toggleGuide()">
                         <span>📖</span> Guide
                     </button>
                 </div>
+                <!-- Distinct ID for Tech Specs to target in tour -->
                 <button id="specsBtn" class="info-toggle" onclick="toggleDetails()">
                     Tech Specs ▼
                 </button>
@@ -395,6 +396,7 @@
 
     </div>
 
+    <!-- Knowledge Base Modal -->
     <div id="guideModal" class="modal-overlay">
         <div class="modal-content">
             <button class="modal-close" onclick="toggleGuide()">✕</button>
@@ -823,14 +825,19 @@
         function toggleVibration() {
             vibrationEnabled = !vibrationEnabled;
             vibeBtn.classList.toggle('active', vibrationEnabled);
-            if (vibrationEnabled && navigator.vibrate) navigator.vibrate(200);
+            // FIX: Force immediate feedback to test if the API is working
+            if (vibrationEnabled && navigator.vibrate) {
+                navigator.vibrate(200); 
+            }
         }
 
         function triggerHaptic(type) {
+             // Separate logic, only runs if vibeBtn is active
              if (vibrationEnabled && navigator.vibrate) {
-                if (type.includes('in')) navigator.vibrate(60);
-                else if (type.includes('out')) navigator.vibrate([40, 40]);
-                else navigator.vibrate(30);
+                // Increased durations for perceptibility
+                if (type.includes('in')) navigator.vibrate(100);       // Was 60
+                else if (type.includes('out')) navigator.vibrate([50, 50, 50]); // Was [40, 40]
+                else navigator.vibrate(50);                            // Was 30
             }
         }
 
@@ -878,6 +885,7 @@
             const title = document.getElementById('tourTitle');
             const text = document.getElementById('tourText');
             
+            // Cleanup previous
             document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
             
             let target;
@@ -900,19 +908,24 @@
                 placeTooltip(target, tooltip, 'top');
                 target.classList.add('tour-highlight');
             } else if (tourStep === 3) {
+                // New step for Guide
                 target = document.getElementById('guideBtn'); 
                 title.innerText = "4. Knowledge Base";
                 text.innerText = "Access the guide to learn the science behind each technique.";
+                 // Highlight the button specifically
                  placeTooltip(target, tooltip, 'top');
                  target.classList.add('tour-highlight');
             } else if (tourStep === 4) {
+                 // New step for Tech Specs
                 target = document.getElementById('specsBtn'); 
                 title.innerText = "5. Tech Specs";
                 text.innerText = "View detailed breath timing and patterns.";
                  placeTooltip(target, tooltip, 'top');
                  target.classList.add('tour-highlight');
             } else {
+                // End
                 tooltip.classList.remove('visible');
+                // Check if guide is already open to prevent double-toggling
                 const guideModal = document.getElementById('guideModal');
                 if (!guideModal.classList.contains('open')) {
                     toggleGuide();
@@ -928,29 +941,45 @@
             
             let top, left;
             left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+            
+            // Smart vertical positioning logic to prevent cutoff
             const spaceBelow = window.innerHeight - rect.bottom;
             const spaceAbove = rect.top;
+            
+            // Tooltip height + button area padding (approx 150px safe zone)
             const requiredSpace = tooltipRect.height > 50 ? tooltipRect.height + 20 : 200; 
+
+            // Logic: 
+            // If pos is bottom, but space below is small (< 150px) AND space above is large (> 150px), flip to top.
+            // If pos is top, but space above is small AND space below is large, flip to bottom.
+            
             if (pos === 'bottom') {
-                if (spaceBelow < requiredSpace && spaceAbove > requiredSpace) pos = 'top';
+                if (spaceBelow < requiredSpace && spaceAbove > requiredSpace) {
+                    pos = 'top';
+                }
             } else if (pos === 'top') {
-                if (spaceAbove < requiredSpace && spaceBelow > requiredSpace) pos = 'bottom';
+                if (spaceAbove < requiredSpace && spaceBelow > requiredSpace) {
+                    pos = 'bottom';
+                }
             }
 
             if (pos === 'bottom') {
                 top = rect.bottom + 15;
-                tooltip.className = "tour-tooltip visible top"; 
+                tooltip.className = "tour-tooltip visible top"; // Arrow points up
             } else {
                 top = rect.top - tooltipRect.height - 15;
-                tooltip.className = "tour-tooltip visible bottom"; 
+                tooltip.className = "tour-tooltip visible bottom"; // Arrow points down
             }
             
+            // Keep on screen horizontal
             if (left < 10) left = 10;
             if (left + tooltipRect.width > window.innerWidth) left = window.innerWidth - tooltipRect.width - 10;
 
             tooltip.style.top = top + "px";
             tooltip.style.left = left + "px";
-            tooltip.className = "tour-tooltip visible"; 
+            tooltip.className = "tour-tooltip visible"; // No arrow class needed
+            
+            // Scroll to ensure visibility if completely off
              target.scrollIntoView({behavior: "smooth", block: "center"});
         }
 
@@ -1040,6 +1069,7 @@
             ctx.beginPath(); ctx.moveTo(x + radius, y); ctx.lineTo(x + width - radius, y); ctx.quadraticCurveTo(x + width, y, x + width, y + radius); ctx.lineTo(x + width, y + height - radius); ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height); ctx.lineTo(x + radius, y + height); ctx.quadraticCurveTo(x, y + height, x, y + height - radius); ctx.lineTo(x, y + radius); ctx.quadraticCurveTo(x, y, x + radius, y); ctx.closePath();
         }
 
+        // Init
         setMode('optimal');
         requestAnimationFrame(animate);
         
