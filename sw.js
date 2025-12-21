@@ -1,4 +1,4 @@
-const CACHE_NAME = 'respire-system-v1';
+const CACHE_NAME = 'respire-system-0.1.3.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -38,4 +38,5 @@ self.addEventListener('fetch', (event) => {
       return response || fetch(event.request);
     })
   );
+
 });
