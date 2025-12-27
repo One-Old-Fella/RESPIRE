@@ -44,6 +44,7 @@
             max-width: 500px;
             padding: 20px;
             box-sizing: border-box;
+            /* Allow scrolling for tall content */
             min-height: 100vh;
             height: auto;
             justify-content: space-between;
@@ -464,9 +465,13 @@
                 </ul>
             </div>
 
+            <!-- REMOVED: How to Install section -->
+
             <div style="text-align:center; margin-top:30px; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;">
                 <button class="mode-btn active" style="padding:10px 30px;" onclick="toggleGuide()">Close Manual</button>
                 <div style="margin-top:15px;"><button class="link-btn" onclick="resetWelcome()">Replay Welcome Tour</button></div>
+                <!-- VERSION DISPLAY -->
+                <div style="margin-top: 15px; color: #555; font-size: 0.8rem;" id="appVersionDisplay"></div>
             </div>
         </div>
     </div>
@@ -503,12 +508,13 @@
         const modeWrapper = document.getElementById('modeWrapper');
         const utilityBar = document.getElementById('utilityBar');
         const guideBtn = document.getElementById('guideBtn');
+        const appVersionDisplay = document.getElementById('appVersionDisplay');
 
 
         // --- Configuration & Persistence ---
-        const APP_VERSION = 3; 
+        const APP_VERSION = '0.1.11.0'; 
         const DEFAULT_SETTINGS = {
-            global: { volume: 0.7, hapticIntensity: 5, audioCue: 'none', welcomeVersion: 0 }, 
+            global: { volume: 0.7, hapticIntensity: 5, audioCue: 'none', welcomeVersion: '0.0.0.0' }, 
             modes: {
                 optimal: { visual: 'elemental', shape: 'circle', tone: 'zen' },
                 balance: { visual: 'box', shape: 'square', tone: 'deep' },
@@ -527,6 +533,9 @@
         let oscillators = []; 
         let gainNode = null;
         let filterNode = null;
+
+        // Set Version Display
+        if (appVersionDisplay) appVersionDisplay.textContent = `v${APP_VERSION}`;
 
         const TONE_DESCRIPTIONS = {
             zen: "Pure and simple. Standard focused tone.",
@@ -690,8 +699,8 @@
             audioCueSelector.value = appSettings.global.audioCue;
             
             // Check Welcome Screen with Version Control
-            // If stored version is less than current APP_VERSION, show welcome
-            if (appSettings.global.welcomeVersion < APP_VERSION) {
+            // If stored version is different than current APP_VERSION, show welcome
+            if (appSettings.global.welcomeVersion !== APP_VERSION) {
                 welcomeScreen.classList.add('visible');
             }
         }
