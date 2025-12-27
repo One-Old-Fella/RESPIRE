@@ -366,13 +366,24 @@
                         <option value="deep">Deep (Sub Sine)</option>
                         <option value="warm">Warm (Triangle)</option>
                         <option value="ethereal">Ethereal (Chord)</option>
+                        <option value="none">None (Silent)</option>
+                    </select>
+                </div>
+                <!-- MOVED: Audio Cue Selector to Sound Panel -->
+                <div class="setting-row">
+                    <label style="margin:0; width: 60px;">Cue</label>
+                    <select id="audioCueSelector" class="tone-select" onchange="updateAudioCue(this.value)">
+                        <option value="none">None</option>
+                        <option value="beep">Beep (High)</option>
+                        <option value="chime">Chime (Low)</option>
                     </select>
                 </div>
                 <div class="setting-desc" id="toneDesc">Pure and simple. Standard focused tone.</div>
             </div>
 
-            <!-- HAPTIC SETTINGS PANEL (NEW) -->
+            <!-- HAPTIC SETTINGS PANEL (REFACTORED) -->
             <div id="hapticSettings" class="settings-panel">
+                <!-- Removed Mode selector, kept Strength -->
                 <div class="setting-row">
                     <label style="margin:0; width: 70px;">Strength</label>
                     <!-- Intensity slider (controls duration multiplier) -->
@@ -483,6 +494,8 @@
         const toneDesc = document.getElementById('toneDesc');
         const volumeSlider = document.getElementById('volumeSlider');
         const hapticSlider = document.getElementById('hapticSlider');
+        const audioCueSelector = document.getElementById('audioCueSelector');
+        
         const guideModal = document.getElementById('guideModal');
         const welcomeScreen = document.getElementById('welcomeScreen');
         const tourTooltip = document.getElementById('tourTooltip');
@@ -495,7 +508,7 @@
         // --- Configuration & Persistence ---
         const APP_VERSION = 3; 
         const DEFAULT_SETTINGS = {
-            global: { volume: 0.7, hapticIntensity: 5, welcomeVersion: 0 }, 
+            global: { volume: 0.7, hapticIntensity: 5, audioCue: 'none', welcomeVersion: 0 }, 
             modes: {
                 optimal: { visual: 'elemental', shape: 'circle', tone: 'zen' },
                 balance: { visual: 'box', shape: 'square', tone: 'deep' },
@@ -519,7 +532,8 @@
             zen: "Pure and simple. Standard focused tone.",
             deep: "Low frequency. Grounding.",
             warm: "Rich harmonics. Soft edges.",
-            ethereal: "Harmonic chord. Meditative."
+            ethereal: "Harmonic chord. Meditative.",
+            none: "Silent. Only cues will play."
         };
 
         // --- Data ---
@@ -564,7 +578,7 @@
                     <h3>The Technique</h3>
                     <p>Inhale, Hold, Exhale, Hold in equal measure (4s each). Imagine traveling around the four sides of a square.</p>
                     <h3>The Science</h3>
-                    <p>The equal ratio balances the sympathetic (alert) and parasympathetic (calm) branches of the nervous system. Nasal inhalation ensures air is filtered and delivers Nitric Oxide to the lungs. The \"hold on empty\" builds CO2 tolerance, preventing panic.</p>
+                    <p>The equal ratio balances the sympathetic (alert) and parasympathetic (calm) branches of the nervous system. Nasal inhalation ensures air is filtered and delivers Nitric Oxide to the lungs. The "hold on empty" builds CO2 tolerance, preventing panic.</p>
                 `
             },
             cold: {
@@ -620,7 +634,7 @@
                     <h3>The Technique</h3>
                     <p>Take two inhales through the nose (a long one, then a short one to top it up). Follow immediately with a long, audible sigh through the mouth.</p>
                     <h3>The Science</h3>
-                    <p>The double nasal inhale pops open collapsed alveoli (air sacs) in the lungs. The long mouth exhale dumps Carbon Dioxide rapidly, signaling the brain to exit the \"Fight or Flight\" state.</p>
+                    <p>The double nasal inhale pops open collapsed alveoli (air sacs) in the lungs. The long mouth exhale dumps Carbon Dioxide rapidly, signaling the brain to exit the "Fight or Flight" state.</p>
                 `
             },
             energy: {
@@ -671,8 +685,12 @@
             if (appSettings.global.hapticIntensity === undefined) appSettings.global.hapticIntensity = 5;
             hapticSlider.value = appSettings.global.hapticIntensity;
             
+            // Set Audio Cue (New Default)
+            if (appSettings.global.audioCue === undefined) appSettings.global.audioCue = 'none';
+            audioCueSelector.value = appSettings.global.audioCue;
+            
             // Check Welcome Screen with Version Control
-            // If stored version is less than current APP_VERSION (3), show welcome
+            // If stored version is less than current APP_VERSION, show welcome
             if (appSettings.global.welcomeVersion < APP_VERSION) {
                 welcomeScreen.classList.add('visible');
             }
@@ -716,9 +734,17 @@
             testHaptics();
         }
 
+        // NEW: Function to update audio cue setting
+        function updateAudioCue(val) {
+            appSettings.global.audioCue = val;
+            saveSettings();
+            if (val === 'beep') playBeep(440, 0.1, 'sine'); // Test beep
+            if (val === 'chime') playBeep(300, 0.3, 'triangle'); // Test chime
+        }
+
         function testHaptics() {
+            // Only tests vibration now
             if (navigator.vibrate) {
-                // Short double pulse to confirm
                 const intensity = appSettings.global.hapticIntensity || 5;
                 const dur = 20 * intensity; 
                 navigator.vibrate([dur, 50, dur]);
@@ -850,10 +876,18 @@
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            // Check if tone is 'none' before creating oscillators
+            const type = appSettings.modes[currentMode].tone;
+            if (type === 'none') {
+                oscillators = []; // Ensure empty array
+                return; // Don't create drone oscillators
+            }
+
             filterNode = audioCtx.createBiquadFilter(); filterNode.type = 'lowpass'; filterNode.frequency.value = 400; filterNode.connect(audioCtx.destination);
             gainNode = audioCtx.createGain(); gainNode.connect(filterNode);
             oscillators = [];
-            const type = appSettings.modes[currentMode].tone;
+            
             if (type === 'ethereal') { createOsc('sine', 1.0); createOsc('sine', 1.5); }
             else { let wtype = 'sine'; if (type === 'warm') wtype = 'triangle'; createOsc(wtype, type === 'deep' ? 0.5 : 1.0); }
         }
@@ -881,28 +915,65 @@
             }
         }
 
+        // Updated helper to play beep or chime
+        function playBeep(freq, duration, type = 'sine') {
+            // Create a temporary audio context if the main one isn't running
+            const ctx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+            if (ctx.state === 'suspended') ctx.resume();
+
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.frequency.value = freq;
+            osc.type = type;
+            
+            const now = ctx.currentTime;
+            
+            // Adjust envelope based on type (Chime gets softer attack/decay)
+            if (type === 'triangle') { // Chime
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.2, now + 0.05); // Soft attack
+                gain.gain.exponentialRampToValueAtTime(0.001, now + duration); // Long tail
+            } else { // Beep
+                gain.gain.setValueAtTime(0.1, now); 
+                gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+            }
+            
+            osc.start(now);
+            osc.stop(now + duration);
+        }
+
         function triggerHaptic(type) {
-             // Separate logic, only runs if vibeBtn is active
+             // 1. VIBRATION LOGIC
              if (vibrationEnabled && navigator.vibrate) {
-                // Get multiplier from slider (1-10), default 5
                 const intensity = appSettings.global.hapticIntensity || 5;
-                // Base duration * multiplier
-                // e.g. Base 10ms * 5 = 50ms pulse
-                
                 let pattern;
                 if (type.includes('in')) {
-                    // Single pulse for inhale start
                     pattern = 15 * intensity; 
                 } else if (type.includes('out')) {
-                    // Double pulse for exhale start
                     let p = 10 * intensity;
                     pattern = [p, 50, p]; 
                 } else {
-                    // Holds / other
                     pattern = 10 * intensity;
                 }
-                
                 navigator.vibrate(pattern);
+            }
+
+            // 2. AUDIO CUE LOGIC
+            if (soundEnabled && appSettings.global.audioCue !== 'none') {
+                const cueType = appSettings.global.audioCue;
+                
+                if (cueType === 'beep') {
+                    if (type.includes('in')) playBeep(440, 0.1, 'sine'); // A4
+                    else if (type.includes('out')) playBeep(330, 0.1, 'sine'); // E4
+                    else playBeep(220, 0.05, 'sine'); // Short tick
+                } else if (cueType === 'chime') {
+                    if (type.includes('in')) playBeep(523.25, 0.6, 'triangle'); // C5
+                    else if (type.includes('out')) playBeep(392.00, 0.6, 'triangle'); // G4
+                    else playBeep(261.63, 0.3, 'triangle'); // C4 (Middle C)
+                }
             }
         }
 
@@ -910,6 +981,10 @@
             if (!soundEnabled || !gainNode || oscillators.length === 0) return;
             const now = audioCtx.currentTime;
             const tone = appSettings.modes[currentMode].tone;
+            
+            // Safety check if tone became 'none' dynamically
+            if (tone === 'none') return;
+
             let minVol = 0.05; let maxVol = 0.3;
             if (tone === 'deep') { minVol = 0.2; maxVol = 0.5; }
             let targetVol = (minVol + ((maxVol - minVol) * sizeFactor)) * appSettings.global.volume;
@@ -927,7 +1002,7 @@
         // --- Tour / Welcome Logic ---
         function closeWelcome() {
             welcomeScreen.classList.remove('visible');
-            appSettings.global.welcomeVersion = APP_VERSION; // Save current version
+            appSettings.global.welcomeVersion = APP_VERSION; 
             saveSettings();
         }
         
@@ -940,7 +1015,7 @@
         function startTour() {
             welcomeScreen.classList.remove('visible');
             tourStep = 0;
-            appSettings.global.welcomeVersion = APP_VERSION; // Save current version
+            appSettings.global.welcomeVersion = APP_VERSION; 
             saveSettings();
             showTourStep();
         }
@@ -950,7 +1025,6 @@
             const title = document.getElementById('tourTitle');
             const text = document.getElementById('tourText');
             
-            // Cleanup previous
             document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
             
             let target;
@@ -973,24 +1047,19 @@
                 placeTooltip(target, tooltip, 'top');
                 target.classList.add('tour-highlight');
             } else if (tourStep === 3) {
-                // New step for Guide
                 target = document.getElementById('guideBtn'); 
                 title.innerText = "4. Knowledge Base";
                 text.innerText = "Access the guide to learn the science behind each technique.";
-                 // Highlight the button specifically
                  placeTooltip(target, tooltip, 'top');
                  target.classList.add('tour-highlight');
             } else if (tourStep === 4) {
-                 // New step for Tech Specs
                 target = document.getElementById('specsBtn'); 
                 title.innerText = "5. Tech Specs";
                 text.innerText = "View detailed breath timing and patterns.";
                  placeTooltip(target, tooltip, 'top');
                  target.classList.add('tour-highlight');
             } else {
-                // End
                 tooltip.classList.remove('visible');
-                // Check if guide is already open to prevent double-toggling
                 const guideModal = document.getElementById('guideModal');
                 if (!guideModal.classList.contains('open')) {
                     toggleGuide();
@@ -1006,45 +1075,29 @@
             
             let top, left;
             left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
-            
-            // Smart vertical positioning logic to prevent cutoff
             const spaceBelow = window.innerHeight - rect.bottom;
             const spaceAbove = rect.top;
-            
-            // Tooltip height + button area padding (approx 150px safe zone)
             const requiredSpace = tooltipRect.height > 50 ? tooltipRect.height + 20 : 200; 
-
-            // Logic: 
-            // If pos is bottom, but space below is small (< 150px) AND space above is large (> 150px), flip to top.
-            // If pos is top, but space above is small AND space below is large, flip to bottom.
-            
             if (pos === 'bottom') {
-                if (spaceBelow < requiredSpace && spaceAbove > requiredSpace) {
-                    pos = 'top';
-                }
+                if (spaceBelow < requiredSpace && spaceAbove > requiredSpace) pos = 'top';
             } else if (pos === 'top') {
-                if (spaceAbove < requiredSpace && spaceBelow > requiredSpace) {
-                    pos = 'bottom';
-                }
+                if (spaceAbove < requiredSpace && spaceBelow > requiredSpace) pos = 'bottom';
             }
 
             if (pos === 'bottom') {
                 top = rect.bottom + 15;
-                tooltip.className = "tour-tooltip visible top"; // Arrow points up
+                tooltip.className = "tour-tooltip visible top"; 
             } else {
                 top = rect.top - tooltipRect.height - 15;
-                tooltip.className = "tour-tooltip visible bottom"; // Arrow points down
+                tooltip.className = "tour-tooltip visible bottom"; 
             }
             
-            // Keep on screen horizontal
             if (left < 10) left = 10;
             if (left + tooltipRect.width > window.innerWidth) left = window.innerWidth - tooltipRect.width - 10;
 
             tooltip.style.top = top + "px";
             tooltip.style.left = left + "px";
-            tooltip.className = "tour-tooltip visible"; // No arrow class needed
-            
-            // Scroll to ensure visibility if completely off
+            tooltip.className = "tour-tooltip visible"; 
              target.scrollIntoView({behavior: "smooth", block: "center"});
         }
 
@@ -1138,9 +1191,38 @@
         setMode('optimal');
         requestAnimationFrame(animate);
         
+        // --- Service Worker & Auto-Update Logic ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
+                let refreshing = false;
+
+                // Listen for the "controllerchange" event: this means the new SW has taken over
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        refreshing = true;
+                        window.location.reload();
+                    }
+                });
+
+                navigator.serviceWorker.register('./sw.js').then(registration => {
+                    // Check for updates on load
+                    registration.update();
+
+                    // Listen for a new worker being found
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            // If the new worker has installed, tell it to skip waiting immediately
+                            if (newWorker.state === 'installed') {
+                                if (navigator.serviceWorker.controller) {
+                                    // New update available
+                                    console.log('[System] New version found. Updating...');
+                                    newWorker.postMessage({ action: 'skipWaiting' });
+                                }
+                            }
+                        });
+                    });
+                }).catch(err => console.log('[System] SW Register failed:', err));
             });
         }
     </script>
