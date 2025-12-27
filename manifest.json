@@ -5,7 +5,7 @@
   "start_url": "./index.html",
   "scope": "./",
   "id": "/RESPIRE/",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#102a43",
   "theme_color": "#102a43",
   "orientation": "portrait",
