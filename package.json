@@ -1,6 +1,6 @@
 {
   "name": "respire-app",
-  "version": "0.1.9.0",
+  "version": "0.1.11",
   "description": "RESPIRE: System Regulation PWA",
   "scripts": {
     "start": "npx http-server . -p 8080"
