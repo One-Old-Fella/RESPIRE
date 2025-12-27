@@ -1,4 +1,4 @@
-const CACHE_NAME = 'respire-system-v0.1.9.0';
+const CACHE_NAME = 'respire-system-v0.1.9';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -38,10 +38,11 @@ self.addEventListener('fetch', (event) => {
       return response || fetch(event.request);
     })
   );
-
 });
 
-
-
-
-
+// 4. Message Handler: Allow the client to force an update
+self.addEventListener('message', (event) => {
+  if (event.data.action === 'skipWaiting') {
+    self.skipWaiting();
+  }
+});
